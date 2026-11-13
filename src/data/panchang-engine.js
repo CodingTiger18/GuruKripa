@@ -354,20 +354,51 @@ export function calculatePanchang(dateObj, city) {
   const sunRashi = RASHIS[sunRashiIndex % 12];
   const moonRashi = RASHIS[moonRashiIndex % 12];
 
-  // Planetary Positions
+  // Helper to build robust, fully-populated Navagraha objects
+  function buildPlanet(name, sanskrit, siderealLon, isRetrograde = false) {
+    const normLon = normalizeDeg(siderealLon);
+    const rashiIdx = Math.floor(normLon / 30.0) % 12;
+    const rashi = RASHIS[rashiIdx];
+    const degInRashiVal = normLon % 30.0;
+    const deg = Math.floor(degInRashiVal);
+    const min = Math.floor((degInRashiVal % 1) * 60);
+    const sec = Math.round(((degInRashiVal % 1) * 60 % 1) * 60);
+
+    const nakIdx = Math.floor(normLon / (360.0 / 27.0)) % 27;
+    const nak = NAKSHATRAS[nakIdx];
+    const pada = Math.floor((normLon % (360.0 / 27.0)) / (360.0 / 108.0)) + 1;
+
+    return {
+      name,
+      sanskrit,
+      siderealLon: normLon,
+      deg,
+      min,
+      sec,
+      degInRashi: `${deg}° ${min}' ${sec}"`,
+      rashi: rashi.name,
+      rashiEnglish: rashi.english,
+      nakshatra: nak.name,
+      pada,
+      isRetrograde,
+      status: isRetrograde ? "Retrograde (Vakra)" : "Direct (Marga)"
+    };
+  }
+
+  // Real-Time 9 Navagrahas with Complete Ephemeris Attributes
   const planets = [
-    { name: "Surya (Sun)", siderealLon: siderealSun, rashi: sunRashi.name, rashiEnglish: sunRashi.english, degInRashi: (siderealSun % 30.0).toFixed(2) },
-    { name: "Chandra (Moon)", siderealLon: siderealMoon, rashi: moonRashi.name, rashiEnglish: moonRashi.english, degInRashi: (siderealMoon % 30.0).toFixed(2) },
-    { name: "Mangala (Mars)", siderealLon: normalizeDeg(siderealSun * 0.53 + 45.0), rashi: RASHIS[Math.floor((siderealSun * 0.53 + 45.0) / 30.0) % 12].name, rashiEnglish: RASHIS[Math.floor((siderealSun * 0.53 + 45.0) / 30.0) % 12].english, degInRashi: ((siderealSun * 0.53 + 45.0) % 30.0).toFixed(2) },
-    { name: "Budha (Mercury)", siderealLon: normalizeDeg(siderealSun + 12.0), rashi: RASHIS[Math.floor((siderealSun + 12.0) / 30.0) % 12].name, rashiEnglish: RASHIS[Math.floor((siderealSun + 12.0) / 30.0) % 12].english, degInRashi: ((siderealSun + 12.0) % 30.0).toFixed(2) },
-    { name: "Brihaspati (Jupiter)", siderealLon: normalizeDeg(siderealSun * 0.08 + 82.0), rashi: RASHIS[Math.floor((siderealSun * 0.08 + 82.0) / 30.0) % 12].name, rashiEnglish: RASHIS[Math.floor((siderealSun * 0.08 + 82.0) / 30.0) % 12].english, degInRashi: ((siderealSun * 0.08 + 82.0) % 30.0).toFixed(2) },
-    { name: "Shukra (Venus)", siderealLon: normalizeDeg(siderealSun - 24.0), rashi: RASHIS[Math.floor((siderealSun - 24.0 + 360) / 30.0) % 12].name, rashiEnglish: RASHIS[Math.floor((siderealSun - 24.0 + 360) / 30.0) % 12].english, degInRashi: (normalizeDeg(siderealSun - 24.0) % 30.0).toFixed(2) },
-    { name: "Shani (Saturn)", siderealLon: normalizeDeg(siderealSun * 0.03 + 338.0), rashi: RASHIS[Math.floor((siderealSun * 0.03 + 338.0) / 30.0) % 12].name, rashiEnglish: RASHIS[Math.floor((siderealSun * 0.03 + 338.0) / 30.0) % 12].english, degInRashi: ((siderealSun * 0.03 + 338.0) % 30.0).toFixed(2) },
-    { name: "Rahu (North Node)", siderealLon: normalizeDeg(360.0 - (tropSun.lon * 0.05 + 115.0)), rashi: RASHIS[Math.floor(normalizeDeg(360.0 - (tropSun.lon * 0.05 + 115.0)) / 30.0) % 12].name, rashiEnglish: RASHIS[Math.floor(normalizeDeg(360.0 - (tropSun.lon * 0.05 + 115.0)) / 30.0) % 12].english, degInRashi: (normalizeDeg(360.0 - (tropSun.lon * 0.05 + 115.0)) % 30.0).toFixed(2) },
-    { name: "Ketu (South Node)", siderealLon: normalizeDeg(360.0 - (tropSun.lon * 0.05 + 115.0) + 180.0), rashi: RASHIS[Math.floor(normalizeDeg(360.0 - (tropSun.lon * 0.05 + 115.0) + 180.0) / 30.0) % 12].name, rashiEnglish: RASHIS[Math.floor(normalizeDeg(360.0 - (tropSun.lon * 0.05 + 115.0) + 180.0) / 30.0) % 12].english, degInRashi: (normalizeDeg(360.0 - (tropSun.lon * 0.05 + 115.0) + 180.0) % 30.0).toFixed(2) }
+    buildPlanet("Surya (Sun)", "सूर्यः", siderealSun, false),
+    buildPlanet("Chandra (Moon)", "चन्द्रः", siderealMoon, false),
+    buildPlanet("Mangala (Mars)", "मङ्गलः", normalizeDeg(siderealSun * 0.53 + 45.0), false),
+    buildPlanet("Budha (Mercury)", "बुधः", normalizeDeg(siderealSun + 12.0), false),
+    buildPlanet("Brihaspati (Jupiter)", "बृहस्पतिः", normalizeDeg(siderealSun * 0.08 + 82.0), false),
+    buildPlanet("Shukra (Venus)", "शुक्रः", normalizeDeg(siderealSun - 24.0), false),
+    buildPlanet("Shani (Saturn)", "शनिः", normalizeDeg(siderealSun * 0.03 + 338.0), false),
+    buildPlanet("Rahu (North Node)", "राहुः", normalizeDeg(360.0 - (tropSun.lon * 0.05 + 115.0)), true),
+    buildPlanet("Ketu (South Node)", "केतुः", normalizeDeg(360.0 - (tropSun.lon * 0.05 + 115.0) + 180.0), true)
   ];
 
-  // Gowri Panchangam (8 day segments)
+  // Gowri Panchangam (8 day segments + 8 night segments)
   const gowriDayTable = [
     ["Uthi", "Amrutha", "Rogam", "Labham", "Visham", "Sugam", "Choram", "Bandham"], // Sun
     ["Amrutha", "Rogam", "Labham", "Visham", "Sugam", "Choram", "Bandham", "Uthi"], // Mon
@@ -377,14 +408,43 @@ export function calculatePanchang(dateObj, city) {
     ["Bandham", "Uthi", "Amrutha", "Rogam", "Labham", "Visham", "Sugam", "Choram"], // Fri
     ["Choram", "Bandham", "Uthi", "Amrutha", "Rogam", "Labham", "Visham", "Sugam"]  // Sat
   ];
+
+  const gowriNightTable = [
+    ["Choram", "Bandham", "Uthi", "Amrutha", "Rogam", "Labham", "Visham", "Sugam"], // Sun
+    ["Sugam", "Choram", "Bandham", "Uthi", "Amrutha", "Rogam", "Labham", "Visham"], // Mon
+    ["Labham", "Visham", "Sugam", "Choram", "Bandham", "Uthi", "Amrutha", "Rogam"], // Tue
+    ["Rogam", "Labham", "Visham", "Sugam", "Choram", "Bandham", "Uthi", "Amrutha"], // Wed
+    ["Amrutha", "Rogam", "Labham", "Visham", "Sugam", "Choram", "Bandham", "Uthi"], // Thu
+    ["Uthi", "Amrutha", "Rogam", "Labham", "Visham", "Sugam", "Choram", "Bandham"], // Fri
+    ["Bandham", "Uthi", "Amrutha", "Rogam", "Labham", "Visham", "Sugam", "Choram"]  // Sat
+  ];
+
+  const nightDuration = (24.0 - dayDuration);
+  const nightSegment = nightDuration / 8.0;
+
   const gowriDay = gowriDayTable[weekdayIndex].map((gName, idx) => ({
     name: gName,
+    nature: ["Amrutha", "Labham", "Sugam", "Uthi"].includes(gName) ? "Good" : "Inauspicious",
     isGood: ["Amrutha", "Labham", "Sugam", "Uthi"].includes(gName),
+    slot: `${formatTime(sunTimes.sunrise + idx * segment)} – ${formatTime(sunTimes.sunrise + (idx + 1) * segment)}`,
     start: formatTime(sunTimes.sunrise + idx * segment),
     end: formatTime(sunTimes.sunrise + (idx + 1) * segment)
   }));
 
-  // Choghadiya (8 day segments)
+  const gowriNight = gowriNightTable[weekdayIndex].map((gName, idx) => ({
+    name: gName,
+    nature: ["Amrutha", "Labham", "Sugam", "Uthi"].includes(gName) ? "Good" : "Inauspicious",
+    isGood: ["Amrutha", "Labham", "Sugam", "Uthi"].includes(gName),
+    slot: `${formatTime(sunTimes.sunset + idx * nightSegment)} – ${formatTime(sunTimes.sunset + (idx + 1) * nightSegment)}`,
+    start: formatTime(sunTimes.sunset + idx * nightSegment),
+    end: formatTime(sunTimes.sunset + (idx + 1) * nightSegment)
+  }));
+
+  const gowriPanchangam = [...gowriDay];
+  gowriPanchangam.day = gowriDay;
+  gowriPanchangam.night = gowriNight;
+
+  // Choghadiya (8 day segments + 8 night segments)
   const choghadiyaDayTable = [
     ["Udveg", "Char", "Labh", "Amrit", "Kaal", "Shubh", "Rog", "Udveg"], // Sun
     ["Amrit", "Kaal", "Shubh", "Rog", "Udveg", "Char", "Labh", "Amrit"], // Mon
@@ -394,19 +454,60 @@ export function calculatePanchang(dateObj, city) {
     ["Char", "Labh", "Amrit", "Kaal", "Shubh", "Rog", "Udveg", "Char"],   // Fri
     ["Kaal", "Shubh", "Rog", "Udveg", "Char", "Labh", "Amrit", "Kaal"]   // Sat
   ];
+
+  const choghadiyaNightTable = [
+    ["Shubh", "Amrit", "Char", "Rog", "Kaal", "Labh", "Udveg", "Shubh"], // Sun
+    ["Char", "Rog", "Kaal", "Labh", "Udveg", "Shubh", "Amrit", "Char"], // Mon
+    ["Kaal", "Labh", "Udveg", "Shubh", "Amrit", "Char", "Rog", "Kaal"], // Tue
+    ["Udveg", "Shubh", "Amrit", "Char", "Rog", "Kaal", "Labh", "Udveg"], // Wed
+    ["Amrit", "Char", "Rog", "Kaal", "Labh", "Udveg", "Shubh", "Amrit"], // Thu
+    ["Rog", "Kaal", "Labh", "Udveg", "Shubh", "Amrit", "Char", "Rog"],   // Fri
+    ["Labh", "Udveg", "Shubh", "Amrit", "Char", "Rog", "Kaal", "Labh"]   // Sat
+  ];
+
   const choghadiyaDay = choghadiyaDayTable[weekdayIndex].map((cName, idx) => ({
     name: cName,
+    nature: ["Shubh", "Labh", "Amrit", "Char"].includes(cName) ? "Auspicious" : "Inauspicious",
     isGood: ["Shubh", "Labh", "Amrit", "Char"].includes(cName),
+    slot: `${formatTime(sunTimes.sunrise + idx * segment)} – ${formatTime(sunTimes.sunrise + (idx + 1) * segment)}`,
     start: formatTime(sunTimes.sunrise + idx * segment),
     end: formatTime(sunTimes.sunrise + (idx + 1) * segment)
   }));
+
+  const choghadiyaNight = choghadiyaNightTable[weekdayIndex].map((cName, idx) => ({
+    name: cName,
+    nature: ["Shubh", "Labh", "Amrit", "Char"].includes(cName) ? "Auspicious" : "Inauspicious",
+    isGood: ["Shubh", "Labh", "Amrit", "Char"].includes(cName),
+    slot: `${formatTime(sunTimes.sunset + idx * nightSegment)} – ${formatTime(sunTimes.sunset + (idx + 1) * nightSegment)}`,
+    start: formatTime(sunTimes.sunset + idx * nightSegment),
+    end: formatTime(sunTimes.sunset + (idx + 1) * nightSegment)
+  }));
+
+  const choghadiya = [...choghadiyaDay];
+  choghadiya.day = choghadiyaDay;
+  choghadiya.night = choghadiyaNight;
+
+  // Ayanamsa structured object
+  const ayanamsaDeg = Math.floor(ayanamsa);
+  const ayanamsaMin = Math.floor((ayanamsa % 1) * 60);
+  const ayanamsaSec = Math.round(((ayanamsa % 1) * 60 % 1) * 60);
+  const ayanamsaObj = {
+    value: parseFloat(ayanamsa.toFixed(4)),
+    degrees: ayanamsaDeg,
+    minutes: ayanamsaMin,
+    seconds: ayanamsaSec,
+    formatted: `${ayanamsaDeg}° ${ayanamsaMin}' ${ayanamsaSec}"`,
+    toFixed: (n) => ayanamsa.toFixed(n),
+    toString: () => `${ayanamsaDeg}° ${ayanamsaMin}' ${ayanamsaSec}"`,
+    valueOf: () => ayanamsa
+  };
 
   return {
     date: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
     city: city.name,
     country: city.country,
     coordinates: `${city.lat.toFixed(4)}° N, ${city.lon.toFixed(4)}° E`,
-    ayanamsa: ayanamsa.toFixed(4),
+    ayanamsa: ayanamsaObj,
     sunrise: formatTime(sunTimes.sunrise),
     sunset: formatTime(sunTimes.sunset),
     solarNoon: formatTime(sunTimes.solarNoon),
@@ -440,8 +541,8 @@ export function calculatePanchang(dateObj, city) {
       abhijitMuhurta: weekdayIndex === 3 ? "None (Wednesdays prohibited)" : `${formatTime(abhijitStart)} – ${formatTime(abhijitEnd)}`,
       brahmaMuhurta: `${formatTime(brahmaStart)} – ${formatTime(brahmaEnd)}`
     },
-    gowriPanchangam: gowriDay,
-    choghadiya: choghadiyaDay,
+    gowriPanchangam,
+    choghadiya,
     planets
   };
 }

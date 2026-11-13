@@ -2,6 +2,13 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
+  server: {
+    port: 3000,
+    open: false,
+    watch: {
+      ignored: ['**/reference_build/**', '**/AppData/**', '**/node_modules/**', '**/.git/**']
+    }
+  },
   root: '.',
   publicDir: 'public',
   build: {
@@ -19,9 +26,5 @@ export default defineConfig({
         assetFileNames: 'assets/[name]-[hash].[ext]'
       }
     }
-  },
-  server: {
-    port: 3000,
-    open: false
   }
 });

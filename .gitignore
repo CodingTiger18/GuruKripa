@@ -18,3 +18,6 @@ Thumbs.db
 *.log
 .vscode/
 .idea/
+
+# Isolated reference build staging
+reference_build/

@@ -59,3 +59,16 @@ test('Transliteration to Southern & Eastern scripts generates correct Unicode bl
   assert.ok(odia.length > 0);
   assert.notEqual(odia, sample);
 });
+
+test('Transliteration eliminates Vedic accent square tofu glyphs across all 11 scripts', () => {
+  const vedicText = "ॐ भूर्भुवः॒ स्वः॑ तत्स॑वि॒तुर्वरे॑ण्यं॒";
+  const allCodes = ['sa', 'hi', 'mr', 'ta', 'te', 'kn', 'ml', 'gu', 'bn', 'or', 'en'];
+
+  for (const code of allCodes) {
+    const rendered = transliterate(vedicText, code);
+    // Assert no unstripped Vedic accent marks leak into output
+    assert.ok(!rendered.includes('\u0951'), `Udatta accent leaked into ${code} rendering`);
+    assert.ok(!rendered.includes('\u0952'), `Anudatta accent leaked into ${code} rendering`);
+    assert.ok(rendered.length > 0, `${code} rendering must not be empty`);
+  }
+});

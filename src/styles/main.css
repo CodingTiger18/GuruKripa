@@ -614,3 +614,427 @@ footer.gk-footer {
   gap: 10px;
   justify-content: flex-end;
 }
+
+
+/* ====================================================================
+ * GuruKripa — Classical Temple Typography & Indic Font Stack
+ * ==================================================================== */
+h1, h2, h3, .gk-brand-title, .gk-card-title, .gk-almanac-title {
+  font-family: 'Cinzel', 'Playfair Display', Georgia, serif;
+  letter-spacing: 0.02em;
+}
+
+.gk-sloka-text {
+  line-height: 1.85 !important;
+  letter-spacing: 0.015em;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+[data-lang="sa"] .gk-sloka-text,
+[data-lang="hi"] .gk-sloka-text,
+[data-lang="mr"] .gk-sloka-text {
+  font-family: 'Noto Serif Devanagari', Georgia, serif;
+}
+
+[data-lang="ta"] .gk-sloka-text {
+  font-family: 'Noto Sans Tamil', system-ui, sans-serif;
+  line-height: 1.9 !important;
+}
+
+[data-lang="te"] .gk-sloka-text {
+  font-family: 'Noto Sans Telugu', system-ui, sans-serif;
+  line-height: 1.95 !important;
+}
+
+[data-lang="kn"] .gk-sloka-text {
+  font-family: 'Noto Sans Kannada', system-ui, sans-serif;
+  line-height: 1.95 !important;
+}
+
+[data-lang="ml"] .gk-sloka-text {
+  font-family: 'Noto Sans Malayalam', system-ui, sans-serif;
+  line-height: 1.9 !important;
+}
+
+[data-lang="bn"] .gk-sloka-text {
+  font-family: 'Noto Sans Bengali', system-ui, sans-serif;
+}
+
+[data-lang="gu"] .gk-sloka-text {
+  font-family: 'Noto Sans Gujarati', system-ui, sans-serif;
+}
+
+[data-lang="or"] .gk-sloka-text {
+  font-family: 'Noto Sans Oriya', system-ui, sans-serif;
+}
+
+[data-lang="en"] .gk-sloka-text {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  color: var(--color-primary);
+}
+
+/* ====================================================================
+ * 12 Sacred Deity Hubs — Visual Shrine Navigation Grid
+ * ==================================================================== */
+.gk-deity-hub-container {
+  margin-bottom: 24px;
+}
+
+.gk-deity-scroll-track {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 8px 2px 14px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-accent) transparent;
+}
+
+.gk-deity-card-chip {
+  flex: 0 0 auto;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+  user-select: none;
+}
+
+.gk-deity-card-chip:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  background: var(--color-surface-hover);
+}
+
+.gk-deity-card-chip.active {
+  background: linear-gradient(135deg, rgba(128, 0, 32, 0.08), rgba(230, 81, 0, 0.12));
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 2px var(--color-secondary);
+}
+
+.gk-deity-icon {
+  font-size: 1.6rem;
+}
+
+.gk-deity-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.gk-deity-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.gk-deity-sanskrit {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* Category Filter Pills */
+.gk-category-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.gk-cat-pill {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.gk-cat-pill:hover,
+.gk-cat-pill.active {
+  background: var(--color-secondary);
+  color: #FFFFFF;
+  border-color: var(--color-secondary);
+}
+
+/* ====================================================================
+ * Synchronized Chanting Audio Player with Speed Controls
+ * ==================================================================== */
+.gk-chant-player {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(230, 81, 0, 0.05));
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin: 12px 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.gk-audio-controls-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gk-audio-play-btn {
+  background: var(--color-primary);
+  color: #FFFFFF;
+  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 1rem;
+}
+
+.gk-audio-play-btn:hover {
+  background: var(--color-secondary);
+  transform: scale(1.05);
+}
+
+.gk-audio-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.gk-speed-selector {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.gk-speed-btn {
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.gk-speed-btn.active {
+  background: var(--color-primary);
+  color: #FFFFFF;
+  border-color: var(--color-primary);
+}
+
+/* Share as Devotional Card Button */
+.gk-share-card-btn {
+  background: linear-gradient(135deg, #D4AF37, #E65100);
+  color: #FFFFFF;
+  border: none;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition);
+  box-shadow: 0 2px 6px rgba(230, 81, 0, 0.2);
+}
+
+.gk-share-card-btn:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+/* ====================================================================
+ * Canvas Devotional Share-Card Modal
+ * ==================================================================== */
+.gk-card-maker-modal {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  max-width: 580px;
+  width: 100%;
+  padding: 24px;
+  box-shadow: var(--shadow-lg);
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 2px solid var(--color-accent);
+}
+
+.gk-theme-swatches {
+  display: flex;
+  gap: 10px;
+  margin: 14px 0 18px;
+  flex-wrap: wrap;
+}
+
+.gk-theme-swatch {
+  flex: 1;
+  min-width: 100px;
+  padding: 10px 8px;
+  border-radius: var(--radius-sm);
+  border: 2px solid transparent;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: #FFFFFF;
+  transition: var(--transition);
+}
+
+.gk-theme-swatch.active {
+  border-color: #FFFFFF;
+  box-shadow: 0 0 0 3px var(--color-secondary);
+}
+
+.gk-theme-saffron { background: linear-gradient(135deg, #FF6F00, #E65100, #800020); }
+.gk-theme-maroon  { background: linear-gradient(135deg, #4A0E17, #800020, #2D050B); }
+.gk-theme-sandal  { background: linear-gradient(135deg, #D4AF37, #996515, #5A3D0B); }
+.gk-theme-indigo  { background: linear-gradient(135deg, #0A192F, #1E3A8A, #311042); }
+
+.gk-canvas-preview-wrapper {
+  background: #111;
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+#gk-share-canvas {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+/* ====================================================================
+ * Traditional Vedic Almanac (Panchangam) Header & Solar Arc
+ * ==================================================================== */
+.gk-almanac-header {
+  background: linear-gradient(135deg, #800020, #4A0E17);
+  color: #FFFFFF;
+  border-radius: var(--radius-md);
+  padding: 18px 24px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid var(--color-accent);
+  box-shadow: var(--shadow-md);
+}
+
+.gk-almanac-header::after {
+  content: "🕉️";
+  position: absolute;
+  right: 16px;
+  bottom: -15px;
+  font-size: 6rem;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.gk-almanac-title {
+  font-size: 1.45rem;
+  color: #FFE082;
+  margin-bottom: 6px;
+}
+
+.gk-samvat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.gk-samvat-item {
+  font-size: 0.78rem;
+  color: #FFE0B2;
+}
+
+.gk-samvat-item strong {
+  display: block;
+  font-size: 0.88rem;
+  color: #FFFFFF;
+}
+
+/* Auspicious & Inauspicious Time Badges */
+.gk-badge-auspicious {
+  display: inline-block;
+  background: rgba(46, 125, 50, 0.15);
+  color: #2E7D32;
+  border: 1px solid #81C784;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+.gk-badge-inauspicious {
+  display: inline-block;
+  background: rgba(198, 40, 40, 0.15);
+  color: #C62828;
+  border: 1px solid #E57373;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+/* ====================================================================
+ * Dharmic Wisdom Library (Moral Stories) Illuminated Cards
+ * ==================================================================== */
+.gk-story-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  transition: var(--transition);
+}
+
+.gk-story-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-accent);
+}
+
+.gk-moral-takeaway-card {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.12), rgba(230, 81, 0, 0.08));
+  border-left: 4px solid var(--color-accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 12px 16px;
+  margin: 14px 0;
+}
+
+.gk-moral-takeaway-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.gk-moral-takeaway-text {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1.45;
+}
