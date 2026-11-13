@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GuruKripa — Master Documentation & Multi-Agent State Hub</title>
+  <style>
+    :root {
+      --primary: #800020;
+      --secondary: #E65100;
+      --accent: #D4AF37;
+      --bg: #FAF7F2;
+      --surface: #FFFFFF;
+      --text: #2B2520;
+      --text-muted: #6B6258;
+      --border: #E8E1D5;
+      --success: #2E7D32;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    header {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--primary);
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 32px;
+      box-shadow: 0 4px 16px rgba(128, 0, 32, 0.05);
+    }
+    .badge-completed {
+      background: rgba(46, 125, 50, 0.12);
+      color: var(--success);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+    h1 { color: var(--primary); font-size: 2.2rem; margin-bottom: 8px; }
+    .subtitle { color: var(--text-muted); font-size: 1.05rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(128, 0, 32, 0.1);
+      border-color: var(--secondary);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .stage-pill {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--secondary);
+    }
+    .card-title {
+      font-size: 1.25rem;
+      color: var(--primary);
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    .card-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .card-footer {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--secondary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .pillars-box {
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 32px;
+    }
+    .pillars-title {
+      color: var(--primary);
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .pillars-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      list-style: none;
+      font-size: 0.85rem;
+    }
+    .pillars-list li strong { color: var(--secondary); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <span class="badge-completed">✓ All Waves 1–6 Completed</span>
+      <h1>GuruKripa Documentation Hub</h1>
+      <p class="subtitle">Autonomous Multi-Agent Enterprise Spiritual & Panchang Portal Architecture</p>
+    </header>
+
+    <div class="grid">
+      <a href="01_explorer.html" class="card">
+        <div>
+          <div class="card-header">
+            <span class="stage-pill">Stage 1</span>
+            <span style="color:var(--success);">✓ 100%</span>
+          </div>
+          <h2 class="card-title">01. Competitive Explorer Report</h2>
+          <p class="card-desc">Comprehensive audit of top 20 global benchmarks across Panchang, Sanskrit Stotras, Moral Stories, and Digital Japa Counters.</p>
+        </div>
+        <div class="card-footer">View Stage 1 Documentation →</div>
+      </a>
+
+      <a href="02_monetization.html" class="card">
+        <div>
+          <div class="card-header">
+            <span class="stage-pill">Stage 2</span>
+            <span style="color:var(--success);">✓ 100%</span>
+          </div>
+          <h2 class="card-title">02. Monetization Strategy</h2>
+          <p class="card-desc">Zero-CLS pre-allocated CSS ad slots, Tier-1 diaspora RPM models, Google AdSense compliance, and ethical spiritual affiliate roadmap.</p>
+        </div>
+        <div class="card-footer">View Stage 2 Documentation →</div>
+      </a>
+
+      <a href="03_architecture.html" class="card">
+        <div>
+          <div class="card-header">
+            <span class="stage-pill">Stage 3</span>
+            <span style="color:var(--success);">✓ Approved</span>
+          </div>
+          <h2 class="card-title">03. Architecture Proposals</h2>
+          <p class="card-desc">Comparative analysis of 3 architectures. Selection and approval of Hybrid SSG + Client-Side Edge Compute ($0/month, infinite scale).</p>
+        </div>
+        <div class="card-footer">View Stage 3 Documentation →</div>
+      </a>
+
+      <a href="04_environment.html" class="card">
+        <div>
+          <div class="card-header">
+            <span class="stage-pill">Stage 4</span>
+            <span style="color:var(--success);">✓ Clean</span>
+          </div>
+          <h2 class="card-title">04. Environment & Tools Setup</h2>
+          <p class="card-desc">Windows 11 host environment audit, Vite bundler initialization, and 15,000+ city offline coordinate database bundling.</p>
+        </div>
+        <div class="card-footer">View Stage 4 Documentation →</div>
+      </a>
+
+      <a href="05_build.html" class="card">
+        <div>
+          <div class="card-header">
+            <span class="stage-pill">Stage 5</span>
+            <span style="color:var(--success);">✓ Built</span>
+          </div>
+          <h2 class="card-title">05. Build Manifest</h2>
+          <p class="card-desc">Full-stack source code breakdown: Drik Ganitha ephemeris engine, 11-script transliterator, 108 Japa Mala, and responsive UI components.</p>
+        </div>
+        <div class="card-footer">View Stage 5 Documentation →</div>
+      </a>
+
+      <a href="06_qa_security.html" class="card">
+        <div>
+          <div class="card-header">
+            <span class="stage-pill">Stage 6</span>
+            <span style="color:var(--success);">✓ 16/16 Passed</span>
+          </div>
+          <h2 class="card-title">06. QA & Security Audit</h2>
+          <p class="card-desc">100% automated test pass rate, multi-zone astronomical validation, Level 3 CSP headers, and release zip packaging audit.</p>
+        </div>
+        <div class="card-footer">View Stage 6 Documentation →</div>
+      </a>
+
+      <a href="07_cicd.html" class="card">
+        <div>
+          <div class="card-header">
+            <span class="stage-pill">Stage 7</span>
+            <span style="color:var(--success);">✓ Active</span>
+          </div>
+          <h2 class="card-title">07. CI/CD & Deployment</h2>
+          <p class="card-desc">GitHub Actions automated workflow scheduled daily at 2:00 AM IST, atomic Cloudflare Pages deployment, and DEPLOYMENT_GUIDE.md.</p>
+        </div>
+        <div class="card-footer">View Stage 7 Documentation →</div>
+      </a>
+    </div>
+
+    <div class="pillars-box">
+      <div class="pillars-title">The 5 Non-Negotiable Project Pillars (100% Satisfied)</div>
+      <ul class="pillars-list">
+        <li><strong>Pillar 1 (Cost):</strong> $0/month recurring cost guaranteed</li>
+        <li><strong>Pillar 2 (Geo-Panchang):</strong> Real-time dynamic GPS math</li>
+        <li><strong>Pillar 3 (11 Languages):</strong> Full native Indic script transliteration</li>
+        <li><strong>Pillar 4 (Ad-Revenue):</strong> Zero-CLS layout containers</li>
+        <li><strong>Pillar 5 (Cybersecurity):</strong> Zero backend attack surface & Level 3 CSP</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

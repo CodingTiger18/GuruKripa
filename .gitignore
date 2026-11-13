@@ -1,0 +1,20 @@
+# Node dependencies
+node_modules/
+package-lock.json
+
+# Build outputs
+dist/
+release/*.zip
+!release/GuruKripa-production-v1.0.zip
+
+# Environment & local secret files
+.env
+.env.*
+!.env.example
+
+# IDE & OS files
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/

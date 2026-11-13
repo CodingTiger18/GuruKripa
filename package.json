@@ -1,0 +1,27 @@
+{
+  "name": "gurukripa",
+  "version": "1.0.0",
+  "description": "GuruKripa — World-Class Zero-Cost Hindu Spiritual & Real-Time Global Panchang Portal",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --test tests/*.test.js"
+  },
+  "keywords": [
+    "panchang",
+    "hindu",
+    "vedic-astrology",
+    "slokas",
+    "mantras",
+    "japa-counter",
+    "moral-stories",
+    "indic-transliteration"
+  ],
+  "author": "GuruKripa Multi-Agent Team",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^6.2.0"
+  }
+}

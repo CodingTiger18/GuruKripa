@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stage 3: Architecture Proposals — GuruKripa Documentation</title>
+  <style>
+    :root { --primary: #800020; --secondary: #E65100; --accent: #D4AF37; --bg: #FAF7F2; --surface: #FFFFFF; --text: #2B2520; --text-muted: #6B6258; --border: #E8E1D5; --success: #2E7D32; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; padding: 40px 20px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    .nav-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding: 12px 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+    .nav-bar a { color: var(--secondary); text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    .doc-content { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 36px; box-shadow: 0 4px 16px rgba(128, 0, 32, 0.04); }
+    h1, h2, h3 { color: var(--primary); margin: 24px 0 12px; }
+    h1 { margin-top: 0; font-size: 2rem; border-bottom: 2px solid var(--accent); padding-bottom: 12px; }
+    table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 0.88rem; }
+    th { background: rgba(128,0,32,0.05); color: var(--primary); text-align: left; padding: 10px; border: 1px solid var(--border); }
+    td { padding: 10px; border: 1px solid var(--border); }
+    pre { background: #1E1A16; color: #FAF7F2; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; margin: 16px 0; }
+    .meta-box { background: rgba(46,125,50,0.08); border-left: 4px solid var(--success); padding: 12px 16px; margin: 16px 0; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="nav-bar">
+      <a href="02_monetization.html">← Prev: 02. Monetization</a>
+      <a href="index.html">Master Hub</a>
+      <a href="04_environment.html">Next: 04. Environment →</a>
+    </div>
+
+    <div class="doc-content">
+      <h1>Stage 3: System Architecture Proposals & Selection</h1>
+      <div class="meta-box">
+        <strong>Selection Decision:</strong> Architecture #1 (Hybrid SSG + Client-Side Edge Compute) Approved • <strong>Author:</strong> <code>agent-3-architect</code>.
+      </div>
+
+      <h2>1. The 3 Architectural Options Evaluated</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Architecture Model</th>
+            <th>Hosting & Compute</th>
+            <th>Monthly Cost</th>
+            <th>Decision & Feasibility</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>#1: Hybrid SSG + Client-Side Math</strong></td>
+            <td>Cloudflare Pages Anycast Edge + Pure Client JS</td>
+            <td><strong>$0.00 / month</strong></td>
+            <td><strong style="color:var(--success);">APPROVED</strong> — Infinite scale, instant builds, zero server attack surface.</td>
+          </tr>
+          <tr>
+            <td><strong>#2: Serverless Edge SSR</strong></td>
+            <td>Cloudflare Workers / Vercel Edge SSR</td>
+            <td>$0–$50+/mo</td>
+            <td><strong>REJECTED</strong> — Spike traffic during festivals breaches free tier request limits.</td>
+          </tr>
+          <tr>
+            <td><strong>#3: Pure Pre-Rendered Jamstack</strong></td>
+            <td>Static HTML for all dates/cities/languages</td>
+            <td>$0/mo</td>
+            <td><strong>REJECTED</strong> — Requires generating 3 Billion files; builds timeout after 6 hours.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>2. Level 3 Content Security Policy (CSP)</h2>
+      <p>Hardened in <code>public/_headers</code> for Cloudflare Pages:</p>
+      <pre><code>Content-Security-Policy: default-src 'self';
+script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://static.cloudflareinsights.com;
+style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+font-src 'self' https://fonts.gstatic.com data:;
+frame-ancestors 'none'; object-src 'none'; base-uri 'self';</code></pre>
+
+      <h2>3. Markdown Source Reference</h2>
+      <p>Full architectural blueprint is in <a href="../03_architecture_proposals.md"><code>agent_docs/03_architecture_proposals.md</code></a>.</p>
+    </div>
+  </div>
+</body>
+</html>

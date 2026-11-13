@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://gurukripa.pages.dev/</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="sa" href="https://gurukripa.pages.dev/#lang=sa"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://gurukripa.pages.dev/#lang=hi"/>
+    <xhtml:link rel="alternate" hreflang="ta" href="https://gurukripa.pages.dev/#lang=ta"/>
+    <xhtml:link rel="alternate" hreflang="te" href="https://gurukripa.pages.dev/#lang=te"/>
+    <xhtml:link rel="alternate" hreflang="kn" href="https://gurukripa.pages.dev/#lang=kn"/>
+    <xhtml:link rel="alternate" hreflang="ml" href="https://gurukripa.pages.dev/#lang=ml"/>
+    <xhtml:link rel="alternate" hreflang="gu" href="https://gurukripa.pages.dev/#lang=gu"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://gurukripa.pages.dev/#lang=bn"/>
+    <xhtml:link rel="alternate" hreflang="mr" href="https://gurukripa.pages.dev/#lang=mr"/>
+    <xhtml:link rel="alternate" hreflang="or" href="https://gurukripa.pages.dev/#lang=or"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://gurukripa.pages.dev/#lang=en"/>
+  </url>
+  <url>
+    <loc>https://gurukripa.pages.dev/#panchang</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://gurukripa.pages.dev/#stotras</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://gurukripa.pages.dev/#japa</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://gurukripa.pages.dev/#stories</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://gurukripa.pages.dev/privacy.html</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://gurukripa.pages.dev/terms.html</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://gurukripa.pages.dev/disclaimer.html</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://gurukripa.pages.dev/about.html</loc>
+    <lastmod>2026-11-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+</urlset>

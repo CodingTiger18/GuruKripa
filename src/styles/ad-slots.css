@@ -1,0 +1,120 @@
+/**
+ * GuruKripa — Zero-CLS Layout-Contained AdSlot Styles
+ * Enforces CSS aspect-ratio and strict layout containment to eliminate layout jumps.
+ */
+
+.gk-ad-container {
+  width: 100%;
+  margin: 16px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  contain: layout style;
+  box-sizing: border-box;
+}
+
+.gk-ad-wrapper {
+  background: rgba(128, 0, 32, 0.02);
+  border: 1px dashed rgba(212, 175, 55, 0.4);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.gk-ad-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #8C7853;
+  margin-bottom: 4px;
+}
+
+/* Header Leaderboard */
+.gk-ad-leaderboard {
+  max-width: 728px;
+  width: 100%;
+  min-height: 90px;
+  height: 90px;
+}
+
+@media (max-width: 768px) {
+  .gk-ad-leaderboard {
+    max-width: 320px;
+    min-height: 50px;
+    height: 50px;
+  }
+}
+
+/* In-Content Medium Rectangle (Panchang & Stotras) */
+.gk-ad-rectangle {
+  max-width: 336px;
+  width: 100%;
+  min-height: 280px;
+  height: 280px;
+}
+
+@media (max-width: 480px) {
+  .gk-ad-rectangle {
+    max-width: 300px;
+    min-height: 250px;
+    height: 250px;
+  }
+}
+
+/* Native Feed Unit (Moral Stories) */
+.gk-ad-native {
+  max-width: 650px;
+  width: 100%;
+  min-height: 180px;
+  height: 180px;
+}
+
+/* Sticky Footer Anchor */
+.gk-ad-sticky-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: rgba(250, 247, 242, 0.96);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(212, 175, 55, 0.3);
+  padding: 6px 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.gk-ad-sticky-content {
+  width: 100%;
+  max-width: 728px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .gk-ad-sticky-content {
+    max-width: 320px;
+    height: 50px;
+  }
+}
+
+.gk-ad-close {
+  position: absolute;
+  top: 4px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #71695E;
+}
