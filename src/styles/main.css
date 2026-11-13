@@ -1386,3 +1386,111 @@ h1, h2, h3, .gk-brand-title, .gk-card-title, .gk-almanac-title {
   display: block;
   margin-bottom: 2px;
 }
+
+
+/* ====================================================================
+ * Daily Panchang Deity Postcard & Social Publisher Modal Styles
+ * ==================================================================== */
+.gk-deity-poster-modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  width: 95%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+}
+
+.gk-aspect-pills, .gk-theme-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 10px 0 16px;
+}
+
+.gk-aspect-pill, .gk-theme-pill {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-background);
+  color: var(--color-text);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.gk-aspect-pill.active, .gk-theme-pill.active {
+  background: var(--color-accent);
+  color: #000000;
+  border-color: var(--color-accent);
+  box-shadow: 0 2px 6px rgba(212, 175, 55, 0.35);
+}
+
+.gk-poster-canvas-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0d0614;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin: 16px 0;
+  max-height: 480px;
+  overflow: hidden;
+}
+
+.gk-poster-canvas-preview canvas {
+  max-width: 100%;
+  max-height: 450px;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.gk-social-share-btns {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.gk-btn-share-native {
+  flex: 1;
+  min-width: 180px;
+  background: linear-gradient(135deg, #E1306C, #F77737);
+  color: #FFFFFF;
+  border: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(225, 48, 108, 0.3);
+}
+
+.gk-btn-share-x {
+  flex: 1;
+  min-width: 150px;
+  background: #000000;
+  color: #FFFFFF;
+  border: 1px solid #333333;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.gk-btn-copy-clip {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}

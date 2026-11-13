@@ -17,6 +17,12 @@ import {
   renderEastIndianChart, 
   renderWestIndianChart 
 } from './data/chart-engine.js';
+import { 
+  drawDeityPostcardCanvas, 
+  getDailyDeityInfo, 
+  POSTER_ASPECT_RATIOS, 
+  POSTER_THEMES 
+} from './data/deity-poster-engine.js';
 
 class GuruKripaApp {
   constructor() {
@@ -32,6 +38,11 @@ class GuruKripaApp {
     this.cityModalOpen = false;
     this.theme = localStorage.getItem('gk_theme') || 'light';
     this.japaEngine = new JapaMalaEngine();
+
+    // Daily Panchang Deity Postcard State
+    this.deityPosterModalOpen = false;
+    this.posterAspectRatio = 'portrait';
+    this.posterTheme = 'gold';
 
     // 12 Deity Hub & Category Filters
     this.selectedDeity = 'all';
@@ -432,6 +443,7 @@ class GuruKripaApp {
       ${this.renderFooter()}
       ${this.cityModalOpen ? this.renderCityModal() : ''}
       ${this.activeCardSloka ? this.renderCardMakerModal() : ''}
+      ${this.deityPosterModalOpen ? this.renderDeityPosterModal() : ''}
       ${this.renderConsentBanner()}
     `;
 
@@ -527,7 +539,10 @@ class GuruKripaApp {
                 📍 ${this.selectedCity.name}, ${this.selectedCity.country} • Lahiri Ayanamsa: ${data.ayanamsa && data.ayanamsa.formatted ? data.ayanamsa.formatted : (data.ayanamsa && data.ayanamsa.degrees !== undefined ? `${data.ayanamsa.degrees}° ${data.ayanamsa.minutes}'` : data.ayanamsa)}
               </div>
             </div>
-            <div>
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+              <button id="gk-open-deity-poster" class="gk-btn" style="background:linear-gradient(135deg, #FFD700, #FF6F00); color:#000000; font-weight:800; border:none; box-shadow:0 2px 10px rgba(255,215,0,0.35); display:inline-flex; align-items:center; gap:6px; cursor:pointer;" title="Generate Instagram/X/WhatsApp Deity Postcard">
+                🎨 Share Deity Postcard
+              </button>
               <input type="date" id="gk-date-picker" class="gk-select" value="${data.date}" style="background:#FFF; color:#222; font-weight:700;">
             </div>
           </div>
@@ -1378,6 +1393,167 @@ class GuruKripaApp {
     `;
   }
 
+  openDeityPoster() {
+    this.deityPosterModalOpen = true;
+    this.render();
+    setTimeout(() => this.drawDeityPoster(), 50);
+  }
+
+  closeDeityPoster() {
+    this.deityPosterModalOpen = false;
+    this.render();
+  }
+
+  drawDeityPoster() {
+    const canvas = document.getElementById('gk-deity-poster-canvas');
+    if (!canvas) return;
+    const data = calculatePanchang(this.selectedDate, this.selectedCity);
+    drawDeityPostcardCanvas(canvas, data, {
+      aspectRatio: this.posterAspectRatio,
+      theme: this.posterTheme,
+      lang: this.selectedLang
+    });
+  }
+
+  downloadDeityPoster() {
+    const canvas = document.getElementById('gk-deity-poster-canvas');
+    if (!canvas) return;
+    const link = document.createElement('a');
+    link.download = `GuruKripa-Deity-Panchang-${this.selectedCity.name}-${new Date().toISOString().slice(0, 10)}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }
+
+  async shareDeityPosterNative() {
+    const canvas = document.getElementById('gk-deity-poster-canvas');
+    if (!canvas) return;
+    const data = calculatePanchang(this.selectedDate, this.selectedCity);
+    const deity = getDailyDeityInfo(data);
+
+    const shareTitle = `${deity ? deity.festival : 'Daily Panchang'} • GuruKripa`;
+    const shareText = `${deity ? deity.deityName + ' — ' + deity.quote : 'Daily Vedic Panchang'}\n\n📍 ${data.city} • Tithi: ${data.tithi.name} • Nakshatra: ${data.nakshatra.name}\n\nLive Panchang: https://gurukripa.pages.dev`;
+
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+      const file = new File([blob], `GuruKripa-Panchang-${data.city}.png`, { type: 'image/png' });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            title: shareTitle,
+            text: shareText,
+            files: [file]
+          });
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            this.downloadDeityPoster();
+          }
+        }
+      } else {
+        this.downloadDeityPoster();
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
+      }
+    }, 'image/png');
+  }
+
+  async copyDeityPosterClip() {
+    const canvas = document.getElementById('gk-deity-poster-canvas');
+    if (!canvas) return;
+    try {
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob })
+        ]);
+        alert("✨ Deity Postcard copied to clipboard! You can paste (Ctrl+V) directly into X, WhatsApp Web, or Instagram.");
+      }, 'image/png');
+    } catch (e) {
+      this.downloadDeityPoster();
+    }
+  }
+
+  shareDeityPosterX() {
+    const data = calculatePanchang(this.selectedDate, this.selectedCity);
+    const deity = getDailyDeityInfo(data);
+    const tweetText = encodeURIComponent(
+      `🕉️ ${deity ? deity.festival : 'Daily Panchang'}\n` +
+      `Deity: ${deity ? deity.deityName : 'Sanatana Dharma'}\n` +
+      `📍 ${data.city} • Tithi: ${data.tithi.name} • Nakshatra: ${data.nakshatra.name}\n\n` +
+      `"${deity ? deity.quote : ''}"\n\n` +
+      `#Panchang #HinduCalendar #${deity ? deity.theme : 'Bhakti'} #GuruKripa\n` +
+      `https://gurukripa.pages.dev`
+    );
+    window.open(`https://twitter.com/intent/tweet?text=${tweetText}`, '_blank');
+  }
+
+  renderDeityPosterModal() {
+    const data = calculatePanchang(this.selectedDate, this.selectedCity);
+    const deity = getDailyDeityInfo(data);
+
+    return `
+      <div class="gk-modal-backdrop" id="gk-deity-poster-backdrop">
+        <div class="gk-deity-poster-modal">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <div>
+              <h3 style="color:var(--color-primary); font-size:1.35rem; margin:0;">
+                🎨 Daily Panchang Deity Postcard & Social Publisher
+              </h3>
+              <p style="font-size:0.82rem; color:var(--color-text-muted); margin:3px 0 0 0;">
+                ${deity ? deity.festival : 'Daily Sacred Occasion'} • Presiding Divinity: <strong style="color:var(--color-secondary);">${deity ? deity.deityName : ''}</strong>
+              </p>
+            </div>
+            <button id="gk-deity-poster-close" class="gk-btn" style="border:none; font-size:1.3rem; cursor:pointer;">✕</button>
+          </div>
+
+          <!-- Aspect Ratio Selector Pills -->
+          <div style="margin-top:10px;">
+            <label style="font-size:0.8rem; font-weight:800; text-transform:uppercase; color:var(--color-secondary); letter-spacing:0.04em;">1. Target Social Format:</label>
+            <div class="gk-aspect-pills">
+              ${POSTER_ASPECT_RATIOS.map(ar => `
+                <button class="gk-aspect-pill ${this.posterAspectRatio === ar.id ? 'active' : ''}" data-aspect="${ar.id}">
+                  ${ar.name}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Theme Selector Pills -->
+          <div>
+            <label style="font-size:0.8rem; font-weight:800; text-transform:uppercase; color:var(--color-secondary); letter-spacing:0.04em;">2. Sacred Devotional Theme:</label>
+            <div class="gk-theme-pills">
+              ${Object.values(POSTER_THEMES).map(th => `
+                <button class="gk-theme-pill ${this.posterTheme === th.id ? 'active' : ''}" data-theme="${th.id}">
+                  ${th.name}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Live High-DPI Canvas Preview -->
+          <div class="gk-poster-canvas-preview">
+            <canvas id="gk-deity-poster-canvas"></canvas>
+          </div>
+
+          <!-- Multi-Platform Publishing & Export Actions -->
+          <div class="gk-social-share-btns">
+            <button id="gk-btn-share-native" class="gk-btn-share-native" title="Share with Image to Instagram, X, WhatsApp">
+              📱 Share on Instagram / WhatsApp / X
+            </button>
+            <button id="gk-btn-share-x" class="gk-btn-share-x" title="Publish to X Timeline">
+              𝕏 Post on X
+            </button>
+            <button id="gk-btn-download-poster" class="gk-btn gk-btn-primary" style="flex:1; min-width:140px;">
+              📥 Download PNG (300 DPI)
+            </button>
+            <button id="gk-btn-copy-clip" class="gk-btn-copy-clip" title="Copy Image to Clipboard">
+              📋 Copy Image
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   renderAdSlot(slotId, size = 'banner') {
     return `
       <div class="gk-ad-container gk-ad-${size}" id="${slotId}" data-ad-slot="${slotId}">
@@ -1571,6 +1747,55 @@ class GuruKripaApp {
     const canvasWhatsapp = document.getElementById('gk-canvas-whatsapp');
     if (canvasWhatsapp) {
       canvasWhatsapp.addEventListener('click', () => this.shareCardToWhatsApp());
+    }
+
+    // Deity Postcard Generator Triggers
+    const openPosterBtn = document.getElementById('gk-open-deity-poster');
+    if (openPosterBtn) {
+      openPosterBtn.addEventListener('click', () => this.openDeityPoster());
+    }
+
+    const closePosterBtn = document.getElementById('gk-deity-poster-close');
+    if (closePosterBtn) {
+      closePosterBtn.addEventListener('click', () => this.closeDeityPoster());
+    }
+
+    document.querySelectorAll('.gk-aspect-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        this.posterAspectRatio = pill.getAttribute('data-aspect');
+        document.querySelectorAll('.gk-aspect-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        this.drawDeityPoster();
+      });
+    });
+
+    document.querySelectorAll('.gk-theme-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        this.posterTheme = pill.getAttribute('data-theme');
+        document.querySelectorAll('.gk-theme-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        this.drawDeityPoster();
+      });
+    });
+
+    const shareNativeBtn = document.getElementById('gk-btn-share-native');
+    if (shareNativeBtn) {
+      shareNativeBtn.addEventListener('click', () => this.shareDeityPosterNative());
+    }
+
+    const shareXBtn = document.getElementById('gk-btn-share-x');
+    if (shareXBtn) {
+      shareXBtn.addEventListener('click', () => this.shareDeityPosterX());
+    }
+
+    const downloadPosterBtn = document.getElementById('gk-btn-download-poster');
+    if (downloadPosterBtn) {
+      downloadPosterBtn.addEventListener('click', () => this.downloadDeityPoster());
+    }
+
+    const copyClipBtn = document.getElementById('gk-btn-copy-clip');
+    if (copyClipBtn) {
+      copyClipBtn.addEventListener('click', () => this.copyDeityPosterClip());
     }
 
     // City Modal Close & Search
