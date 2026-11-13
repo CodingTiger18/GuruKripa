@@ -1,2 +1,6 @@
-# GuruKripa — Google AdSense Authorized Digital Sellers
+# ====================================================================
+# GuruKripa — Authorized Digital Sellers (ads.txt)
+# IAB OpenRTB Compliance for Google AdSense & Authorized Ad Networks
+# Replace 'pub-XXXXXXXXXXXXXXXX' with your verified Google AdSense Publisher ID.
+# ====================================================================
 google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0

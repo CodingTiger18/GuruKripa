@@ -76,9 +76,65 @@
         <li><strong>Authorized Sellers:</strong> Root <code>public/ads.txt</code> published.</li>
         <li><strong>Originality:</strong> Public-domain Sanskrit texts paired with original English word-by-word Sabdartha and philosophical purports.</li>
         <li><strong>Cookieless Consent:</strong> Google Consent Mode v2 banner pre-integrated in <code>src/main.js</code>.</li>
+        <li><strong>Privacy Policy Transparency:</strong> Explicit Google DART cookie disclosures, Google Ad Settings opt-out link, and CCPA Do Not Sell compliance.</li>
       </ul>
 
-      <h2>4. Markdown Source Reference</h2>
+      <h2>4. 5 Active Zero-CLS Ad Slots in Production</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Slot ID</th>
+            <th>Format</th>
+            <th>Desktop / Mobile Dimensions</th>
+            <th>Placement</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>ad-header-leaderboard</code></td>
+            <td>Leaderboard Banner</td>
+            <td>728x90 / 320x50</td>
+            <td>Sub-nav top bar (Visible across all main views)</td>
+          </tr>
+          <tr>
+            <td><code>ad-panchang-inline</code></td>
+            <td>Medium Rectangle</td>
+            <td>336x280 / 300x250</td>
+            <td>Below Panchang Muhurtas & ephemeris tables</td>
+          </tr>
+          <tr>
+            <td><code>ad-stotra-incontent</code></td>
+            <td>In-Content Rectangle</td>
+            <td>300x250</td>
+            <td>Between Stotra 2 and Stotra 3</td>
+          </tr>
+          <tr>
+            <td><code>ad-story-native</code></td>
+            <td>Native In-Feed Unit</td>
+            <td>650x180 / 300x250</td>
+            <td>Between Story 1 and Story 2</td>
+          </tr>
+          <tr>
+            <td><code>ad-footer-anchor</code></td>
+            <td>Sticky Bottom Banner</td>
+            <td>728x90 / 320x50</td>
+            <td>Fixed viewport bottom with persistent ✕ dismiss button</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>5. Dynamic Single-Page Application (SPA) SEO Engine</h2>
+      <p>GuruKripa features an automated client-side SEO updater (<code>updateSEO()</code>) that dynamically modifies:</p>
+      <ul>
+        <li><strong>Page Title & Meta Descriptions:</strong> Dynamically tailored for each view (Panchang, 12 Jyotirlingas, Stotras, Japa Mala, Moral Stories).</li>
+        <li><strong>Canonical & OpenGraph Meta:</strong> Injects canonical URLs and OpenGraph preview banner (<code>public/assets/og-banner.svg</code>).</li>
+        <li><strong>Schema.org JSON-LD:</strong> Generates multi-graph schemas including <code>WebApplication</code>, <code>WebSite</code>, <code>BreadcrumbList</code>, and interactive <code>FAQPage</code> rich snippets.</li>
+      </ul>
+
+      <h2>6. Ethical Dharmic Affiliate Monetization</h2>
+      <p>To provide immediate $0-cost revenue prior to AdSense volume approval, GuruKripa integrates curated scriptural editions (Gita Press Gorakhpur) and consecrated physical Japa Malas (5-Mukhi Rudraksha, Vrindavan Tulasi) marked with <code>rel="sponsored nofollow noopener"</code>.</p>
+
+      <h2>7. Markdown Source Reference</h2>
       <p>Full details are in <a href="../02_monetization_strategy.md"><code>agent_docs/02_monetization_strategy.md</code></a>.</p>
     </div>
   </div>

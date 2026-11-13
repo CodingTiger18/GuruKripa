@@ -434,20 +434,25 @@ class GuruKripaApp {
     const app = document.getElementById('app');
     if (!app) return;
 
+    const hideStickyAd = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('gk_hide_sticky_ad') === 'true';
+
     app.innerHTML = `
       ${this.renderHeader()}
       <main class="gk-main">
         ${this.renderNavSubbar()}
+        ${this.renderAdSlot('ad-header-leaderboard', 'leaderboard')}
         ${this.renderView()}
       </main>
       ${this.renderFooter()}
       ${this.cityModalOpen ? this.renderCityModal() : ''}
       ${this.activeCardSloka ? this.renderCardMakerModal() : ''}
       ${this.deityPosterModalOpen ? this.renderDeityPosterModal() : ''}
+      ${!hideStickyAd ? this.renderAdSlot('ad-footer-anchor', 'sticky-footer') : ''}
       ${this.renderConsentBanner()}
     `;
 
     this.bindEvents();
+    this.updateSEO();
   }
 
   renderHeader() {
@@ -1186,6 +1191,9 @@ class GuruKripaApp {
             ${idx === 1 ? this.renderAdSlot('ad-stotra-incontent', 'rectangle') : ''}
           </article>
         `).join('')}
+
+        <!-- Ethical Spiritual Affiliate Recommendations -->
+        ${this.renderAffiliateScriptures()}
       </section>
     `;
   }
@@ -1248,6 +1256,9 @@ class GuruKripaApp {
             <button id="gk-japa-export" class="gk-btn" style="font-size:0.75rem;">💾 Export Sadhana JSON</button>
           </div>
         </div>
+
+        <!-- Ethical Consecrated Physical Mala Recommendations -->
+        ${this.renderAffiliateMalas()}
       </section>
     `;
   }
@@ -1265,7 +1276,7 @@ class GuruKripaApp {
         </div>
 
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px;">
-          ${STORIES_DATA.map((s) => `
+          ${STORIES_DATA.map((s, sIdx) => `
             <article class="gk-story-card">
               <div>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -1314,6 +1325,7 @@ class GuruKripaApp {
                 <div id="gk-quiz-result-${s.id}" style="display:none; padding:8px 12px; border-radius:6px; font-size:0.8rem; margin-top:6px;"></div>
               </div>
             </article>
+            ${sIdx === 0 ? this.renderAdSlot('ad-story-native', 'native') : ''}
           `).join('')}
         </div>
       </section>
@@ -1555,13 +1567,183 @@ class GuruKripaApp {
   }
 
   renderAdSlot(slotId, size = 'banner') {
+    const pubId = (typeof window !== 'undefined' && window.GURUKRIPA_ADSENSE_ID) ? window.GURUKRIPA_ADSENSE_ID : 'ca-pub-XXXXXXXXXXXXXXXX';
+
+    if (size === 'sticky-footer') {
+      return `
+        <div class="gk-ad-sticky-footer" id="${slotId}" data-ad-slot="${slotId}">
+          <button class="gk-ad-close" id="gk-close-${slotId}" title="Dismiss Sponsor Banner" aria-label="Close Ad">✕</button>
+          <div class="gk-ad-sticky-content">
+            <div class="gk-ad-wrapper" style="width:100%; height:100%; border:none; background:transparent;">
+              <span class="gk-ad-label" style="font-size:0.6rem; opacity:0.75;">SPONSOR MESSAGE</span>
+              <ins class="adsbygoogle"
+                   style="display:inline-block;width:320px;height:50px"
+                   data-ad-client="${pubId}"
+                   data-ad-slot="${slotId}"></ins>
+              <div class="gk-ad-fallback" style="font-size:0.72rem; color:#8C7853; text-align:center; padding:2px 8px;">
+                🕉️ Support GuruKripa's Zero-Cost Spiritual Mission • <a href="/about.html" style="color:var(--color-primary);text-decoration:underline;">Devotional Sponsor Space</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     return `
       <div class="gk-ad-container gk-ad-${size}" id="${slotId}" data-ad-slot="${slotId}">
-        <span class="gk-ad-label">ADVERTISEMENT</span>
-        <div class="gk-ad-placeholder">
-          <!-- Google AdSense Ready Slot (Zero CLS Pre-allocated) -->
+        <span class="gk-ad-label">SPONSOR MESSAGE</span>
+        <div class="gk-ad-wrapper" style="width:100%; height:100%;">
+          <ins class="adsbygoogle"
+               style="display:block"
+               data-ad-client="${pubId}"
+               data-ad-slot="${slotId}"
+               data-ad-format="${size === 'native' ? 'fluid' : 'auto'}"
+               data-full-width-responsive="true"></ins>
+          <div class="gk-ad-fallback" style="font-size:0.75rem; color:#8C7853; text-align:center; padding:10px 14px;">
+            <span style="font-weight:700; color:var(--color-primary);">🕉️ GuruKripa Sanatana Dharma Patron</span><br>
+            <span style="font-size:0.72rem; opacity:0.85;">Zero-CLS AdSense Space • <a href="/about.html" style="color:var(--color-primary);text-decoration:underline;">Learn How Sponsorship Keeps This Portal Free</a></span>
+          </div>
         </div>
       </div>
+    `;
+  }
+
+  renderAffiliateScriptures() {
+    return `
+      <section class="gk-affiliate-section" style="margin-top:32px; background:rgba(255,215,0,0.03); border:1px solid rgba(212,175,55,0.35); border-radius:12px; padding:22px; contain:layout;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+          <div>
+            <h3 style="font-size:1.2rem; color:var(--color-primary); margin:0;">
+              🕉️ Recommended Authentic Scriptures & Sādhanā Editions
+            </h3>
+            <p style="font-size:0.82rem; color:var(--color-text-muted); margin:4px 0 0 0;">
+              Authorized Sanskrit-English publications from venerable institutions (Gita Press Gorakhpur, Chaukhamba) for serious spiritual seekers.
+            </p>
+          </div>
+          <span style="font-size:0.7rem; background:rgba(212,175,55,0.15); color:var(--color-secondary); padding:4px 10px; border-radius:20px; font-weight:700; letter-spacing:0.05em;">
+            CURATED DHARMIC EDITIONS
+          </span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px;">
+          <div style="background:var(--color-surface); border:1px solid var(--color-border); border-radius:8px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="font-size:0.75rem; color:var(--color-secondary); font-weight:700;">GITA PRESS GORAKHPUR</div>
+              <h4 style="font-size:0.95rem; margin:6px 0 8px 0; color:var(--color-primary);">Bhagavad Gita (Code 11 — Deluxe Hardcover)</h4>
+              <p style="font-size:0.8rem; color:var(--color-text-muted); margin-bottom:10px;">
+                Original Devanagari verses, word-for-word Sanskrit meanings, and unvarnished commentaries by Swami Ramsukhdasji.
+              </p>
+            </div>
+            <a href="https://www.amazon.com/dp/812930410X?tag=gurukripa-20" target="_blank" rel="sponsored nofollow noopener" class="gk-btn" style="text-align:center; font-size:0.8rem; background:linear-gradient(135deg, #FFD700, #FF6F00); color:#000; font-weight:700; border:none; text-decoration:none;">
+              📖 View Authentic Edition
+            </a>
+          </div>
+
+          <div style="background:var(--color-surface); border:1px solid var(--color-border); border-radius:8px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="font-size:0.75rem; color:var(--color-secondary); font-weight:700;">VALMIKI RAMAYANA</div>
+              <h4 style="font-size:0.95rem; margin:6px 0 8px 0; color:var(--color-primary);">Srimad Valmiki Ramayana (2-Volume Complete Set)</h4>
+              <p style="font-size:0.8rem; color:var(--color-text-muted); margin-bottom:10px;">
+                Complete 24,000 verses across 6 Kandas with Sanskrit text and verse-by-verse lucid English translation.
+              </p>
+            </div>
+            <a href="https://www.amazon.com/dp/8129300287?tag=gurukripa-20" target="_blank" rel="sponsored nofollow noopener" class="gk-btn" style="text-align:center; font-size:0.8rem; background:linear-gradient(135deg, #FFD700, #FF6F00); color:#000; font-weight:700; border:none; text-decoration:none;">
+              📖 View 2-Vol Set
+            </a>
+          </div>
+
+          <div style="background:var(--color-surface); border:1px solid var(--color-border); border-radius:8px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="font-size:0.75rem; color:var(--color-secondary); font-weight:700;">SHIVA PURANA</div>
+              <h4 style="font-size:0.95rem; margin:6px 0 8px 0; color:var(--color-primary);">Shiva Purana with Jyotirlinga Mahatmya</h4>
+              <p style="font-size:0.8rem; color:var(--color-text-muted); margin-bottom:10px;">
+                Sacred lore of the 12 Jyotirlingas, Kotirudra Samhita, and deep esoteric meaning of the Mahamrityunjaya and Shiva Sahasranama.
+              </p>
+            </div>
+            <a href="https://www.amazon.com/dp/8129302158?tag=gurukripa-20" target="_blank" rel="sponsored nofollow noopener" class="gk-btn" style="text-align:center; font-size:0.8rem; background:linear-gradient(135deg, #FFD700, #FF6F00); color:#000; font-weight:700; border:none; text-decoration:none;">
+              📖 View Shiva Purana
+            </a>
+          </div>
+
+          <div style="background:var(--color-surface); border:1px solid var(--color-border); border-radius:8px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="font-size:0.75rem; color:var(--color-secondary); font-weight:700;">PUJA ESSENTIALS</div>
+              <h4 style="font-size:0.95rem; margin:6px 0 8px 0; color:var(--color-primary);">Pure Brass Pancha Aarti & Akhand Diya</h4>
+              <p style="font-size:0.8rem; color:var(--color-text-muted); margin-bottom:10px;">
+                Traditional heavy cast brass 5-flame lamp crafted per Shilpa Shastra proportions for daily Mangala Aarti.
+              </p>
+            </div>
+            <a href="https://www.amazon.com/dp/B08XYZ1234?tag=gurukripa-20" target="_blank" rel="sponsored nofollow noopener" class="gk-btn" style="text-align:center; font-size:0.8rem; background:linear-gradient(135deg, #FFD700, #FF6F00); color:#000; font-weight:700; border:none; text-decoration:none;">
+              🪔 View Brass Diya
+            </a>
+          </div>
+        </div>
+
+        <div style="font-size:0.7rem; color:var(--color-text-muted); margin-top:14px; text-align:right;">
+          * All affiliate links are designated with <code>rel="sponsored nofollow noopener"</code> per Google Webmaster Guidelines. Commissions directly support domain and zero-cost hosting.
+        </div>
+      </section>
+    `;
+  }
+
+  renderAffiliateMalas() {
+    return `
+      <section class="gk-affiliate-section" style="margin-top:28px; background:rgba(230,81,0,0.03); border:1px solid rgba(230,81,0,0.25); border-radius:12px; padding:20px; contain:layout;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div>
+            <h4 style="font-size:1.1rem; color:var(--color-primary); margin:0;">
+              📿 Looking for a Physical Consecrated Japa Mala?
+            </h4>
+            <p style="font-size:0.82rem; color:var(--color-text-muted); margin:4px 0 0 0;">
+              For tactile Sparsha Japa sadhana, natural organic beads retain electro-magnetic spiritual vibrations.
+            </p>
+          </div>
+          <span style="font-size:0.7rem; background:rgba(230,81,0,0.12); color:#E65100; padding:4px 8px; border-radius:20px; font-weight:700;">
+            TRADITIONAL SADHANA
+          </span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:14px;">
+          <div style="background:var(--color-surface); border:1px solid var(--color-border); border-radius:8px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="font-size:0.75rem; color:#E65100; font-weight:700;">INDONESIAN / NEPALI</div>
+              <h5 style="font-size:0.9rem; margin:4px 0 6px 0; color:var(--color-primary);">Certified 5-Mukhi Rudraksha (108+1 Beads)</h5>
+              <p style="font-size:0.78rem; color:var(--color-text-muted); margin-bottom:8px;">
+                Lab-certified natural five-face seeds knotted with silk thread and traditional red tassel for Shiva & Mahamrityunjaya chanting.
+              </p>
+            </div>
+            <a href="https://www.amazon.com/dp/B07RUDRA01?tag=gurukripa-20" target="_blank" rel="sponsored nofollow noopener" class="gk-btn" style="text-align:center; font-size:0.75rem; background:var(--color-primary); color:#FFF; font-weight:700; border:none; text-decoration:none;">
+              View Certified Mala
+            </a>
+          </div>
+
+          <div style="background:var(--color-surface); border:1px solid var(--color-border); border-radius:8px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="font-size:0.75rem; color:#E65100; font-weight:700;">VRINDAVAN DHAM</div>
+              <h5 style="font-size:0.9rem; margin:4px 0 6px 0; color:var(--color-primary);">Natural Vrindavan Sacred Tulasi Mala</h5>
+              <p style="font-size:0.78rem; color:var(--color-text-muted); margin-bottom:8px;">
+                Pure Holy Basil wood carved by traditional artisans in Vrindavan, ideal for Maha Mantra and Vishnu Sahasranama chanting.
+              </p>
+            </div>
+            <a href="https://www.amazon.com/dp/B07TULSI02?tag=gurukripa-20" target="_blank" rel="sponsored nofollow noopener" class="gk-btn" style="text-align:center; font-size:0.75rem; background:var(--color-primary); color:#FFF; font-weight:700; border:none; text-decoration:none;">
+              View Tulasi Mala
+            </a>
+          </div>
+
+          <div style="background:var(--color-surface); border:1px solid var(--color-border); border-radius:8px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
+            <div>
+              <div style="font-size:0.75rem; color:#E65100; font-weight:700;">MYSORE CHANDAN</div>
+              <h5 style="font-size:0.9rem; margin:4px 0 6px 0; color:var(--color-primary);">Fragrant White Sandalwood Mala</h5>
+              <p style="font-size:0.78rem; color:var(--color-text-muted); margin-bottom:8px;">
+                Cooling natural sandalwood beads with natural soothing aroma that calms mental agitation during prolonged dhyāna.
+              </p>
+            </div>
+            <a href="https://www.amazon.com/dp/B07SANDAL3?tag=gurukripa-20" target="_blank" rel="sponsored nofollow noopener" class="gk-btn" style="text-align:center; font-size:0.75rem; background:var(--color-primary); color:#FFF; font-weight:700; border:none; text-decoration:none;">
+              View Sandalwood Mala
+            </a>
+          </div>
+        </div>
+      </section>
     `;
   }
 
@@ -1935,6 +2117,187 @@ class GuruKripaApp {
         const banner = document.getElementById('gk-consent-banner');
         if (banner) banner.remove();
       });
+    }
+
+    // Sticky Footer Ad Dismissal
+    const stickyClose = document.getElementById('gk-close-ad-footer-anchor');
+    if (stickyClose) {
+      stickyClose.addEventListener('click', () => {
+        if (typeof sessionStorage !== 'undefined') {
+          sessionStorage.setItem('gk_hide_sticky_ad', 'true');
+        }
+        const stickyAd = document.getElementById('ad-footer-anchor');
+        if (stickyAd) stickyAd.remove();
+      });
+    }
+
+    // Google AdSense Push Safe Initialization
+    try {
+      if (typeof window !== 'undefined' && window.adsbygoogle) {
+        document.querySelectorAll('ins.adsbygoogle').forEach(() => {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+        });
+      }
+    } catch (e) {
+      // Graceful fallback for adblockers / offline preview
+    }
+  }
+
+  updateSEO() {
+    if (typeof document === 'undefined') return;
+
+    const seoMap = {
+      panchang: {
+        title: `Today's Vedic Panchangam, Rahu Kalam & Planetary Ephemeris — GuruKripa`,
+        desc: `Live Vedic Panchangam for ${this.selectedCity.name}, ${this.selectedCity.country} on ${this.selectedDate}. Accurate Tithi, Nakshatra, Yoga, Karana, Abhijit Muhurta, Rahu Kalam, and sidereal Nirayana planetary longitudes calculated 100% in-browser with Lahiri Ayanamsa.`,
+        keywords: `Panchang, Vedic calendar, Rahu Kalam, ${this.selectedCity.name} panchangam, Tithi, Nakshatra, Lahiri Ayanamsa, daily horoscope, Hindu Vaara`
+      },
+      jyotirlingas: {
+        title: `12 Jyotirlinga Mahakshetra & Sacred Shrines Guide — GuruKripa`,
+        desc: `Comprehensive pilgrimage guide to the 12 sacred Jyotirlingas: Somnath, Mallikarjuna, Mahakaleshwar, Omkareshwar, Kedarnath, Bhimashankar, Kashi Vishwanath, Trimbakeshwar, Vaidyanath, Nageshwar, Rameshwaram, and Grishneshwar with authentic puranic history, dosha nivarana parikaras, and specific poojas.`,
+        keywords: `12 Jyotirlingas, Somnath, Mahakaleshwar, Kedarnath, Kashi Vishwanath, Shiva shrines, dosha nivarana, parikaras, Jyotirlinga pilgrimage`
+      },
+      stotras: {
+        title: `Sanskrit Stotras, Mantras & Hymns in 11 Indian Scripts — GuruKripa`,
+        desc: `Chant authentic sacred Sanskrit stotras including Shiva Tandava Stotram, Sri Venkateswara Suprabhatam, Mahalakshmi Ashtakam, and Aditya Hridaya Stotram with word-by-word Sabdartha and dynamic transliteration across 11 Indic scripts.`,
+        keywords: `Sanskrit stotras, Shiva Tandava Stotram, Venkateswara Suprabhatam, Mahalakshmi Ashtakam, Sanskrit mantras, Indic transliteration, Sabdartha`
+      },
+      japa: {
+        title: `108-Bead Interactive Digital Japa Mala & Chanting Counter — GuruKripa`,
+        desc: `Sacred 108 Japa Mala counter with sensory haptic vibration, bell chimes, custom bead goals, and offline sadhana history tracker for mantra meditation.`,
+        keywords: `Japa mala, digital japa counter, 108 beads, mantra meditation, sadhana tracker, Hare Krishna japa, Om Namah Shivaya`
+      },
+      stories: {
+        title: `Sanatana Dharma Moral Stories & Panchatantra Fables — GuruKripa`,
+        desc: `Inspiring Hindu moral stories, Hitopadesha wisdom, Panchatantra fables, and Dharmic reflection dilemmas with illuminated takeaways for seekers and families.`,
+        keywords: `Panchatantra stories, Hitopadesha, Hindu moral stories, Dharmic wisdom, Indian fables, Vedic bedtime stories`
+      }
+    };
+
+    const currentSeo = seoMap[this.currentView] || seoMap.panchang;
+    document.title = currentSeo.title;
+
+    // Update Meta Description
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+      metaDesc = document.createElement('meta');
+      metaDesc.name = "description";
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.content = currentSeo.desc;
+
+    // Update Meta Keywords
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement('meta');
+      metaKeywords.name = "keywords";
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.content = currentSeo.keywords;
+
+    // Update Canonical Link
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.rel = "canonical";
+      document.head.appendChild(canonical);
+    }
+    canonical.href = `https://gurukripa.pages.dev/#${this.currentView}`;
+
+    // Update OpenGraph Tags
+    const setMeta = (prop, val) => {
+      let el = document.querySelector(`meta[property="${prop}"]`);
+      if (!el) {
+        el = document.createElement('meta');
+        el.setAttribute('property', prop);
+        document.head.appendChild(el);
+      }
+      el.content = val;
+    };
+    setMeta('og:title', currentSeo.title);
+    setMeta('og:description', currentSeo.desc);
+    setMeta('og:url', `https://gurukripa.pages.dev/#${this.currentView}`);
+    setMeta('og:image', 'https://gurukripa.pages.dev/assets/og-banner.svg');
+
+    // Update Twitter Tags
+    const setTwitter = (name, val) => {
+      let el = document.querySelector(`meta[name="${name}"]`);
+      if (!el) {
+        el = document.createElement('meta');
+        el.setAttribute('name', name);
+        document.head.appendChild(el);
+      }
+      el.content = val;
+    };
+    setTwitter('twitter:title', currentSeo.title);
+    setTwitter('twitter:description', currentSeo.desc);
+    setTwitter('twitter:image', 'https://gurukripa.pages.dev/assets/og-banner.svg');
+
+    // Update Document HTML Lang
+    document.documentElement.lang = this.selectedLang || 'en';
+
+    // Update JSON-LD Structured Data
+    const schemaScript = document.getElementById('gk-schema-jsonld');
+    if (schemaScript) {
+      const graph = [
+        {
+          "@type": "WebApplication",
+          "@id": "https://gurukripa.pages.dev/#webapp",
+          "name": "GuruKripa",
+          "url": "https://gurukripa.pages.dev",
+          "description": currentSeo.desc,
+          "applicationCategory": "LifestyleApplication",
+          "operatingSystem": "All",
+          "inLanguage": ["sa", "hi", "mr", "ta", "te", "kn", "ml", "gu", "bn", "or", "en"],
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": `https://gurukripa.pages.dev/#breadcrumb-${this.currentView}`,
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "GuruKripa", "item": "https://gurukripa.pages.dev/" },
+            { "@type": "ListItem", "position": 2, "name": currentSeo.title, "item": `https://gurukripa.pages.dev/#${this.currentView}` }
+          ]
+        }
+      ];
+
+      if (this.currentView === 'panchang') {
+        graph.push({
+          "@type": "FAQPage",
+          "@id": "https://gurukripa.pages.dev/#faq-panchang",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What is Rahu Kalam and why is it important?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Rahu Kalam is an inauspicious time window of approximately 90 minutes each day governed by Rahu. Auspicious ventures, travel, and pujas are traditionally avoided during this period."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How does GuruKripa calculate planetary longitudes dynamically?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "GuruKripa computes high-precision sidereal Nirayana longitudes using Jean Meeus astronomical algorithms coupled with Lahiri Chitrapaksha Ayanamsa 100% in the user's browser."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What are the 5 Limbs of Panchang?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The 5 limbs (Panchanga) are Tithi (Lunar Day), Vaara (Solar Weekday), Nakshatra (Lunar Mansion), Yoga (Luni-Solar angular distance), and Karana (Half-Tithi)."
+              }
+            }
+          ]
+        });
+      }
+
+      schemaScript.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@graph": graph
+      }, null, 2);
     }
   }
 }

@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A000A"/>
+      <stop offset="50%" stop-color="#330018"/>
+      <stop offset="100%" stop-color="#550028"/>
+    </linearGradient>
+    <radialGradient id="haloGrad" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#FFD700" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#FFD700" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFE082"/>
+      <stop offset="50%" stop-color="#FFD700"/>
+      <stop offset="100%" stop-color="#FFA000"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGrad)"/>
+  <circle cx="600" cy="250" r="320" fill="url(#haloGrad)"/>
+
+  <!-- Ornate Golden Borders -->
+  <rect x="24" y="24" width="1152" height="582" fill="none" stroke="#D4AF37" stroke-width="4" rx="12"/>
+  <rect x="36" y="36" width="1128" height="558" fill="none" stroke="#FFD700" stroke-width="1.5" stroke-dasharray="10 6" rx="8"/>
+
+  <!-- Corner Filigrees -->
+  <circle cx="48" cy="48" r="8" fill="#FFD700"/>
+  <circle cx="1152" cy="48" r="8" fill="#FFD700"/>
+  <circle cx="48" cy="582" r="8" fill="#FFD700"/>
+  <circle cx="1152" cy="582" r="8" fill="#FFD700"/>
+
+  <!-- Sacred OM Iconography -->
+  <g transform="translate(600, 160) scale(1.3)">
+    <circle cx="0" cy="0" r="48" fill="rgba(255,215,0,0.12)" stroke="#FFD700" stroke-width="2"/>
+    <text x="0" y="24" font-family="'Cinzel', Georgia, serif" font-size="70" font-weight="bold" fill="url(#goldGrad)" text-anchor="middle">ॐ</text>
+  </g>
+
+  <!-- Portal Title -->
+  <text x="600" y="280" font-family="'Cinzel', Georgia, serif" font-size="64" font-weight="800" fill="url(#goldGrad)" text-anchor="middle" letter-spacing="8">GURUKRIPA</text>
+  
+  <text x="600" y="325" font-family="'Noto Serif Devanagari', 'Cinzel', serif" font-size="28" font-weight="600" fill="#FFE082" text-anchor="middle" letter-spacing="4">गुरूकृपा — SANATANA DHARMA VEDIC ALMANAC</text>
+
+  <!-- Divider Line -->
+  <line x1="320" y1="355" x2="880" y2="355" stroke="#D4AF37" stroke-width="2" stroke-linecap="round"/>
+  <polygon points="600,350 608,355 600,360 592,355" fill="#FFD700"/>
+
+  <!-- Pillars Feature Pills -->
+  <g transform="translate(600, 420)">
+    <!-- Pill 1 -->
+    <rect x="-480" y="-24" width="220" height="48" rx="24" fill="rgba(255,255,255,0.06)" stroke="#FFD700" stroke-width="1"/>
+    <text x="-370" y="7" font-family="sans-serif" font-size="15" font-weight="bold" fill="#FFF8E7" text-anchor="middle">🌐 Global Geo-Panchang</text>
+
+    <!-- Pill 2 -->
+    <rect x="-240" y="-24" width="220" height="48" rx="24" fill="rgba(255,255,255,0.06)" stroke="#FFD700" stroke-width="1"/>
+    <text x="-130" y="7" font-family="sans-serif" font-size="15" font-weight="bold" fill="#FFF8E7" text-anchor="middle">🔱 12 Jyotirlinga Shrines</text>
+
+    <!-- Pill 3 -->
+    <rect x="0" y="-24" width="220" height="48" rx="24" fill="rgba(255,255,255,0.06)" stroke="#FFD700" stroke-width="1"/>
+    <text x="110" y="7" font-family="sans-serif" font-size="15" font-weight="bold" fill="#FFF8E7" text-anchor="middle">📜 11 Indic Scripts</text>
+
+    <!-- Pill 4 -->
+    <rect x="240" y="-24" width="240" height="48" rx="24" fill="rgba(255,255,255,0.06)" stroke="#FFD700" stroke-width="1"/>
+    <text x="360" y="7" font-family="sans-serif" font-size="15" font-weight="bold" fill="#FFF8E7" text-anchor="middle">📿 108 Japa Mala Counter</text>
+  </g>
+
+  <!-- Subtitle / Tagline -->
+  <text x="600" y="515" font-family="sans-serif" font-size="18" font-weight="500" fill="#E0D0C0" text-anchor="middle">
+    100% In-Browser High-Precision Astronomy • Zero Recurring Cost • Zero-CLS Ad Readiness
+  </text>
+
+  <!-- Domain Badge -->
+  <g transform="translate(600, 560)">
+    <rect x="-140" y="-18" width="280" height="36" rx="6" fill="#D4AF37"/>
+    <text x="0" y="6" font-family="sans-serif" font-size="15" font-weight="bold" fill="#1A000A" text-anchor="middle" letter-spacing="1">GURUKRIPA.PAGES.DEV</text>
+  </g>
+</svg>

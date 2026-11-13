@@ -4,15 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GuruKripa — Global Vedic Panchang & Hindu Spiritual Portal</title>
-  <meta name="description" content="Real-Time Global Geo-Panchang, 11-Script Sanskrit Stotras, 108 Japa Mala Counter & Moral Stories with 100% Client-Side Accuracy.">
+  <meta name="description" content="Real-Time Global Geo-Panchang, 11-Script Sanskrit Stotras, 12 Jyotirlinga Mahakshetra Guide, 108 Japa Mala Counter & Moral Stories with 100% Client-Side Accuracy.">
+  <meta name="keywords" content="Panchang, Hindu Calendar, Vedic Astrology, Rahu Kalam, 12 Jyotirlingas, Stotras, Japa Mala, Sanskrit Mantras, Akshaya Tritiya, Lahiri Ayanamsa, Hindu Festivals">
+  <meta name="author" content="GuruKripa Sanatana Dharma Foundation">
   <link rel="canonical" href="https://gurukripa.pages.dev/">
   
   <!-- OpenGraph & Twitter Meta -->
   <meta property="og:title" content="GuruKripa — Global Vedic Panchang & Hindu Spiritual Portal">
-  <meta property="og:description" content="Calculates daily Panchang for your exact global coordinates in real time. 11 Indian scripts, 108-bead Japa Mala with haptics & moral fables.">
+  <meta property="og:description" content="Calculates daily Panchang for your exact global coordinates in real time. 11 Indian scripts, 12 Jyotirlinga shrines, 108-bead Japa Mala with haptics & moral fables.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://gurukripa.pages.dev/">
+  <meta property="og:image" content="https://gurukripa.pages.dev/assets/og-banner.svg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="GuruKripa — Sanatana Dharma Vedic Almanac">
+  
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GuruKripa — Global Vedic Panchang & Hindu Spiritual Portal">
+  <meta name="twitter:description" content="Calculates daily Panchang for your exact global coordinates in real time. 11 Indian scripts, 12 Jyotirlinga shrines, 108-bead Japa Mala & moral fables.">
+  <meta name="twitter:image" content="https://gurukripa.pages.dev/assets/og-banner.svg">
+  <meta name="twitter:site" content="@GuruKripaVedic">
+
+  <!-- Google AdSense Account Verification Tag -->
+  <meta name="google-adsense-account" content="ca-pub-XXXXXXXXXXXXXXXX">
   
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#E65100">
@@ -26,16 +40,38 @@
   <link rel="stylesheet" href="/src/styles/ad-slots.css">
 
   <!-- Schema.org JSON-LD -->
-  <script type="application/ld+json">
+  <script id="gk-schema-jsonld" type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "GuruKripa",
-    "url": "https://gurukripa.pages.dev",
-    "description": "Enterprise-grade Vedic spiritual portal offering real-time global Panchang, 11-script Sanskrit stotra reader, and interactive 108 Japa Mala counter.",
-    "applicationCategory": "LifestyleApplication",
-    "operatingSystem": "All",
-    "inLanguage": ["sa", "hi", "mr", "ta", "te", "kn", "ml", "gu", "bn", "or", "en"]
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "@id": "https://gurukripa.pages.dev/#webapp",
+        "name": "GuruKripa",
+        "url": "https://gurukripa.pages.dev",
+        "description": "Enterprise-grade Vedic spiritual portal offering real-time global Panchang, 12 Jyotirlinga shrines, 11-script Sanskrit stotra reader, and interactive 108 Japa Mala counter.",
+        "applicationCategory": "LifestyleApplication",
+        "operatingSystem": "All",
+        "inLanguage": ["sa", "hi", "mr", "ta", "te", "kn", "ml", "gu", "bn", "or", "en"],
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://gurukripa.pages.dev/#website",
+        "url": "https://gurukripa.pages.dev",
+        "name": "GuruKripa",
+        "description": "Global Vedic Almanac & Sanatana Dharma Knowledge Repository",
+        "publisher": {
+          "@type": "Organization",
+          "name": "GuruKripa Sanatana Dharma Foundation",
+          "url": "https://gurukripa.pages.dev"
+        }
+      }
+    ]
   }
   </script>
 </head>
