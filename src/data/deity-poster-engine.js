@@ -6,8 +6,8 @@
  */
 
 export const POSTER_ASPECT_RATIOS = [
-  { id: "square", name: "Instagram Square (1:1)", width: 1080, height: 1080, desc: "Instagram & Facebook Feed" },
   { id: "portrait", name: "Social Portrait (4:5)", width: 1080, height: 1350, desc: "High-Engagement Instagram Feed" },
+  { id: "square", name: "Instagram Square (1:1)", width: 1080, height: 1080, desc: "Instagram & Facebook Feed" },
   { id: "story", name: "Status / Story (9:16)", width: 1080, height: 1920, desc: "WhatsApp Status & IG Stories" },
   { id: "landscape", name: "X Timeline (16:9)", width: 1200, height: 675, desc: "X (Twitter) Feed Preview" }
 ];
@@ -19,9 +19,9 @@ export const POSTER_THEMES = {
     primary: "#FFD700",
     secondary: "#D4AF37",
     accent: "#FF6F00",
-    bgStart: "#1a0f02",
-    bgMid: "#2e1a04",
-    bgEnd: "#452707",
+    bgStart: "#150a01",
+    bgMid: "#2b1403",
+    bgEnd: "#421e05",
     textLight: "#FFF8E7",
     textMuted: "#FFE0B2",
     border: "#FFD700"
@@ -29,7 +29,7 @@ export const POSTER_THEMES = {
   saffron: {
     id: "saffron",
     name: "Temple Saffron (Surya & Hanuman)",
-    primary: "#FF9800",
+    primary: "#FFA000",
     secondary: "#E65100",
     accent: "#FFD54F",
     bgStart: "#1a0800",
@@ -42,25 +42,25 @@ export const POSTER_THEMES = {
   maroon: {
     id: "maroon",
     name: "Sacred Maroon (Durga & Devi)",
-    primary: "#E91E63",
-    secondary: "#880E4F",
+    primary: "#F06292",
+    secondary: "#C2185B",
     accent: "#FFD54F",
-    bgStart: "#1a000d",
-    bgMid: "#33001a",
-    bgEnd: "#4d0026",
+    bgStart: "#1a000e",
+    bgMid: "#33001c",
+    bgEnd: "#4d002a",
     textLight: "#FCE4EC",
     textMuted: "#F8BBD0",
-    border: "#F06292"
+    border: "#EC407A"
   },
   neelkanth: {
     id: "neelkanth",
     name: "Neelkanth Blue (Shiva & Krishna)",
-    primary: "#00B0FF",
-    secondary: "#01579B",
+    primary: "#4FC3F7",
+    secondary: "#0288D1",
     accent: "#FFD700",
-    bgStart: "#030d1a",
-    bgMid: "#061833",
-    bgEnd: "#0c2b59",
+    bgStart: "#030c17",
+    bgMid: "#061830",
+    bgEnd: "#0b264d",
     textLight: "#E1F5FE",
     textMuted: "#B3E5FC",
     border: "#4FC3F7"
@@ -85,6 +85,7 @@ export function getDailyDeityInfo(panchangData) {
   // Check for Akshaya Tritiya (Vaishakha Shukla Tritiya ~ April/May)
   if (tithiPaksha === "Shukla" && tithiName.includes("Tritiya") && (month === 4 || month === 5)) {
     return {
+      deityKey: "akshaya_lakshmi_kubera",
       festival: "अक्षय तृतीया — Akshaya Tritiya Mahaparva",
       deityName: "Maa Mahalakshmi, Lord Kubera & Swarna Akarshana Bhairava",
       deitySanskrit: "श्रीमहालक्ष्मी, कुबेरेश्वर एवं स्वर्णाकर्षण भैरव",
@@ -99,6 +100,7 @@ export function getDailyDeityInfo(panchangData) {
   // Maha Shivaratri (Magha/Phalguna Krishna Chaturdashi ~ Feb/March)
   if (tithiPaksha === "Krishna" && tithiName.includes("Chaturdashi") && (month === 2 || month === 3)) {
     return {
+      deityKey: "shiva_somavara",
       festival: "महाशिवरात्रि — Maha Shivaratri Mahaparva",
       deityName: "Lord Shiva — Someshwara & Mahakala",
       deitySanskrit: "देवाधिदेव महादेव एवं भगवान् महाकाल",
@@ -113,6 +115,7 @@ export function getDailyDeityInfo(panchangData) {
   // Krishna Janmashtami (Bhadrapada Krishna Ashtami ~ Aug/Sept)
   if (tithiPaksha === "Krishna" && tithiName.includes("Ashtami") && (month === 8 || month === 9)) {
     return {
+      deityKey: "krishna_budhavara",
       festival: "श्रीकृष्ण जन्माष्टमी — Sri Krishna Janmashtami",
       deityName: "Bhagavan Sri Krishna — Parthasarathi",
       deitySanskrit: "लीलापुरुषोत्तम भगवान् श्रीकृष्ण",
@@ -127,6 +130,7 @@ export function getDailyDeityInfo(panchangData) {
   // Rama Navami (Chaitra Shukla Navami ~ March/April)
   if (tithiPaksha === "Shukla" && tithiName.includes("Navami") && (month === 3 || month === 4)) {
     return {
+      deityKey: "devi_durga",
       festival: "श्रीरामनवमी — Sri Rama Navami Mahotsava",
       deityName: "Maryada Purushottama Sri Ramachandra",
       deitySanskrit: "मर्यादापुरुषोत्तम श्रीरामचन्द्र प्रभु",
@@ -141,6 +145,7 @@ export function getDailyDeityInfo(panchangData) {
   // Vinayaka / Ganesh Chaturthi (Bhadrapada Shukla Chaturthi ~ Aug/Sept)
   if (tithiPaksha === "Shukla" && tithiName.includes("Chaturthi") && (month === 8 || month === 9)) {
     return {
+      deityKey: "ganesha_chaturthi",
       festival: "विनायक चतुर्थी — Sri Ganesha Chaturthi",
       deityName: "Lord Vighnaharta Sri Ganesha",
       deitySanskrit: "विघ्नहर्ता सिद्धिबुद्धिप्रदाता श्रीगणेशः",
@@ -156,6 +161,7 @@ export function getDailyDeityInfo(panchangData) {
   // Ekadashi (11th Tithi) -> Lord Maha Vishnu
   if (tithiName.includes("Ekadashi")) {
     return {
+      deityKey: "vishnu_ekadashi",
       festival: `${tithiPaksha} एकादशी — Sacred Hari Vasara`,
       deityName: "Lord Maha Vishnu & Sri Krishna",
       deitySanskrit: "श्रीमहाविष्णु एवं जगद्गुरु श्रीकृष्ण",
@@ -170,6 +176,7 @@ export function getDailyDeityInfo(panchangData) {
   // Trayodashi (13th Tithi) -> Shiva & Pradosham
   if (tithiName.includes("Trayodashi")) {
     return {
+      deityKey: "shiva_somavara",
       festival: `${tithiPaksha} त्रयोदशी — Sacred Pradosha Vrata`,
       deityName: "Lord Shiva & Rishabharoodha Nandi",
       deitySanskrit: "श्रीमहादेव एवं वृषभारूढ भगवान्",
@@ -185,6 +192,7 @@ export function getDailyDeityInfo(panchangData) {
   if (tithiName.includes("Chaturthi")) {
     const isSankashti = tithiPaksha === "Krishna";
     return {
+      deityKey: "ganesha_chaturthi",
       festival: isSankashti ? "संकष्टी चतुर्थी — Sankashti Ganesha Vrata" : "विनायक चतुर्थी — Vinayaka Chaturthi",
       deityName: "Lord Ganesha (Vighnaharta)",
       deitySanskrit: "श्रीगणेश एवं संकटमोचन विनायक",
@@ -199,6 +207,7 @@ export function getDailyDeityInfo(panchangData) {
   // Ashtami / Navami -> Maa Durga / Sri Rama
   if (tithiName.includes("Ashtami") || tithiName.includes("Navami")) {
     return {
+      deityKey: "devi_durga",
       festival: `${tithiPaksha} ${tithiName} — Devi & Rama Aradhana`,
       deityName: "Maa Durga Bhavani & Sri Rama",
       deitySanskrit: "जगज्जननी माँ दुर्गा एवं मर्यादापुरुषोत्तम श्रीराम",
@@ -213,8 +222,9 @@ export function getDailyDeityInfo(panchangData) {
   // Purnima (Full Moon) -> Satyanarayana & Lalita Devi
   if (tithiName.includes("Purnima")) {
     return {
+      deityKey: "akshaya_lakshmi_kubera",
       festival: "श्री सत्यनारायण पौर्णमासी — Sacred Full Moon",
-      deityName: "Bhagavan Sri Satyanarayana & Maa Lalita Tripurasundari",
+      deityName: "Bhagavan Sri Satyanarayana & Maa Lalita Devi",
       deitySanskrit: "श्रीसत्यनारायण स्वामी एवं ललिता त्रिपुरसुन्दरी",
       deityTitle: "Embodiments of Truth, Divine Motherhood and Completeness",
       theme: "gold",
@@ -228,6 +238,7 @@ export function getDailyDeityInfo(panchangData) {
   const weekdayDeities = [
     // 0: Sunday
     {
+      deityKey: "surya_ravivara",
       festival: "पवित्र रविवासर — Sacred Day of the Sun",
       deityName: "Lord Surya Narayana (Sun God)",
       deitySanskrit: "प्रत्यक्ष देवता भगवान् सूर्यनारायण",
@@ -239,6 +250,7 @@ export function getDailyDeityInfo(panchangData) {
     },
     // 1: Monday
     {
+      deityKey: "shiva_somavara",
       festival: "पवित्र सोमवासर — Sacred Day of Lord Shiva",
       deityName: "Lord Chandramouliswara (Shiva)",
       deitySanskrit: "चन्द्रमौलीश्वर भगवान् सदाशिव",
@@ -250,6 +262,7 @@ export function getDailyDeityInfo(panchangData) {
     },
     // 2: Tuesday
     {
+      deityKey: "hanuman_murugan",
       festival: "पवित्र मङ्गलवासर — Day of Hanuman & Murugan",
       deityName: "Lord Hanuman & Lord Murugan (Skanda)",
       deitySanskrit: "सङ्कटमोचन श्रीहनुमान् एवं मुरुगन् स्वामी",
@@ -261,6 +274,7 @@ export function getDailyDeityInfo(panchangData) {
     },
     // 3: Wednesday
     {
+      deityKey: "krishna_budhavara",
       festival: "पवित्र बुधवासर — Day of Sri Krishna & Budha",
       deityName: "Sri Krishna & Lord Budha (Mercury)",
       deitySanskrit: "लीलाधर श्रीकृष्ण एवं बुद्धिप्रदाता बुध ग्रह",
@@ -272,8 +286,9 @@ export function getDailyDeityInfo(panchangData) {
     },
     // 4: Thursday
     {
+      deityKey: "guru_dakshinamurthy",
       festival: "पवित्र गुरुवासर — Day of the Supreme Preceptor",
-      deityName: "Lord Dakshinamurthy, Dattatreya & Brihaspati",
+      deityName: "Lord Dakshinamurthy & Brihaspati",
       deitySanskrit: "जगद्गुरु दक्षिणामूर्ति एवं भगवान् दत्तात्रेय",
       deityTitle: "Embodiments of Highest Wisdom, Spiritual Realization and Grace",
       theme: "gold",
@@ -283,6 +298,7 @@ export function getDailyDeityInfo(panchangData) {
     },
     // 5: Friday
     {
+      deityKey: "akshaya_lakshmi_kubera",
       festival: "पवित्र शुक्रवासर — Day of Divine Motherhood",
       deityName: "Maa Mahalakshmi, Kamakshi & Annapoorneshwari",
       deitySanskrit: "सर्वमङ्गला माँ महालक्ष्मी एवं जगदम्बा",
@@ -294,11 +310,12 @@ export function getDailyDeityInfo(panchangData) {
     },
     // 6: Saturday
     {
+      deityKey: "venkateswara_shani",
       festival: "पवित्र शनिवासर — Day of Shani Dev & Venkateswara",
       deityName: "Sri Venkateswara & Lord Shani Bhagavan",
       deitySanskrit: "कलियुग प्रत्यक्ष देव श्रीवेङ्कटेश्वर एवं शनिदेव",
       deityTitle: "Dispenser of Karmic Justice & Savior of Kali Yuga",
-      theme: "neelkanth",
+      theme: "gold",
       mantra: "वेङ्कटेशो वासुदेवः प्रद्युम्नोऽमितविक्रमः । नीलाञ्जनसमाभासं रविपुत्रं यमाग्रजम् ॥",
       quote: "Chant the Govinda Nama and practice charity to the needy to dissolve the malefic effects of Saturn and attain peace.",
       specialNote: "👑 Sesame oil deepa offering to Shani Dev mitigates hardships"
@@ -309,16 +326,492 @@ export function getDailyDeityInfo(panchangData) {
 }
 
 /**
+ * Text Auto-Fit Helper: Scales down font size until text strictly fits within maxWidth.
+ */
+function drawFittedText(ctx, text, x, y, maxWidth, initialSize, fontStyle, fillStyle, align = "center") {
+  let size = initialSize;
+  ctx.textAlign = align;
+  ctx.font = `${fontStyle} ${size}px 'Noto Serif Devanagari', 'Cinzel', 'Noto Sans', sans-serif`;
+  while (ctx.measureText(text).width > maxWidth && size > 12) {
+    size -= 1;
+    ctx.font = `${fontStyle} ${size}px 'Noto Serif Devanagari', 'Cinzel', 'Noto Sans', sans-serif`;
+  }
+  ctx.fillStyle = fillStyle;
+  ctx.fillText(text, x, y);
+  return size;
+}
+
+/**
+ * Text Word-Wrapping Helper: Splits long text into multiple lines fitting maxWidth.
+ */
+function drawWrappedLines(ctx, text, x, y, maxWidth, lineHeight, maxLines, fontSize, fontStyle, fillStyle, align = "center") {
+  ctx.textAlign = align;
+  ctx.font = `${fontStyle} ${fontSize}px 'Noto Serif Devanagari', 'Noto Sans', sans-serif`;
+  ctx.fillStyle = fillStyle;
+  const words = text.split(/\s+/);
+  let line = "";
+  let currY = y;
+  let lineCount = 0;
+
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + (line ? " " : "") + words[n];
+    if (ctx.measureText(testLine).width > maxWidth && line) {
+      ctx.fillText(line, x, currY);
+      line = words[n];
+      currY += lineHeight;
+      lineCount++;
+      if (lineCount >= maxLines - 1 && n < words.length - 1) {
+        line += " ...";
+        break;
+      }
+    } else {
+      line = testLine;
+    }
+  }
+  if (line) {
+    ctx.fillText(line, x, currY);
+    currY += lineHeight;
+  }
+  return currY;
+}
+
+/**
+ * Sacred Deity Vigraha Vector Renderer
+ * Renders ornate, divine iconographic illustrations of Hindu deities directly onto the canvas.
+ */
+export function drawDeityVigrahaArtwork(ctx, deityKey, cx, cy, radius, theme) {
+  ctx.save();
+
+  // 1. Radiant Glowing Halo (Prabhavali)
+  const haloGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, radius * 1.35);
+  haloGrad.addColorStop(0, "rgba(255, 235, 59, 0.45)");
+  haloGrad.addColorStop(0.5, "rgba(255, 160, 0, 0.25)");
+  haloGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = haloGrad;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius * 1.35, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Ornate Outer Circular Golden Frame
+  ctx.strokeStyle = theme.border || "#FFD700";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius - 6, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Background Disc for Deity
+  const innerGrad = ctx.createRadialGradient(cx, cy - 20, 10, cx, cy, radius);
+  innerGrad.addColorStop(0, "#2a1505");
+  innerGrad.addColorStop(1, "#0f0515");
+  ctx.fillStyle = innerGrad;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius - 8, 0, Math.PI * 2);
+  ctx.fill();
+
+  // 2. Specific Sacred Vigraha Renderers
+  if (deityKey === "venkateswara_shani") {
+    // --- LORD VENKATESWARA (BALAJI) & SHANI DEV ---
+    // A. Sacred Crown (Kirita Makuta)
+    ctx.fillStyle = "#FFD700";
+    ctx.beginPath();
+    ctx.moveTo(cx - 32, cy - 40);
+    ctx.lineTo(cx, cy - 105);
+    ctx.lineTo(cx + 32, cy - 40);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = "#FF8F00";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Gem on Crown Top
+    ctx.fillStyle = "#D50000";
+    ctx.beginPath();
+    ctx.arc(cx, cy - 105, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // B. Divine Face & Neck (Dark Stone / Shyama Sundara)
+    ctx.fillStyle = "#263238";
+    ctx.beginPath();
+    ctx.ellipse(cx, cy - 22, 28, 32, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // C. Glowing Holy Tirunamam (Namam)
+    ctx.fillStyle = "#FFFFFF";
+    // Left white flank
+    ctx.beginPath();
+    ctx.moveTo(cx - 16, cy - 44);
+    ctx.lineTo(cx - 8, cy - 44);
+    ctx.lineTo(cx - 3, cy - 18);
+    ctx.lineTo(cx - 8, cy - 18);
+    ctx.closePath();
+    ctx.fill();
+    // Right white flank
+    ctx.beginPath();
+    ctx.moveTo(cx + 16, cy - 44);
+    ctx.lineTo(cx + 8, cy - 44);
+    ctx.lineTo(cx + 3, cy - 18);
+    ctx.lineTo(cx + 8, cy - 18);
+    ctx.closePath();
+    ctx.fill();
+    // Middle Sacred Red Kasturi Tilak
+    ctx.fillStyle = "#D50000";
+    ctx.fillRect(cx - 2.5, cy - 42, 5, 28);
+
+    // D. Upper Hands: Sudarshana Chakra (Right) & Panchajanya Shankha (Left)
+    // Blazing Golden Chakra on Right
+    ctx.strokeStyle = "#FFD700";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(cx + 70, cy - 45, 18, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = "#FFA000";
+    ctx.beginPath();
+    ctx.arc(cx + 70, cy - 45, 8, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Sacred White Conch (Shankha) on Left
+    ctx.fillStyle = "#FFFFFF";
+    ctx.beginPath();
+    ctx.ellipse(cx - 70, cy - 45, 12, 18, Math.PI / 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#FFD700";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // E. Golden Shoulders & Body Adornments
+    ctx.fillStyle = "#FFB300";
+    ctx.beginPath();
+    ctx.arc(cx, cy + 30, 48, 0, Math.PI);
+    ctx.fill();
+
+    // Golden Makara Kundalas (Earrings)
+    ctx.fillStyle = "#FFD700";
+    ctx.beginPath();
+    ctx.arc(cx - 34, cy - 18, 7, 0, Math.PI * 2);
+    ctx.arc(cx + 34, cy - 18, 7, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Tulasi & Flower Garland (Vanamaala)
+    ctx.strokeStyle = "#4CAF50";
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.arc(cx, cy + 15, 42, 0.2, Math.PI - 0.2);
+    ctx.stroke();
+
+    // F. Shani Bhagavan Representation: Glowing Sapphire Crescent & Raven Symbol
+    ctx.fillStyle = "#0288D1";
+    ctx.beginPath();
+    ctx.arc(cx + 65, cy + 35, 16, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#E1F5FE";
+    ctx.font = "bold 14px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("शनि", cx + 65, cy + 40);
+
+  } else if (deityKey === "akshaya_lakshmi_kubera") {
+    // --- GODDESS MAHALAKSHMI & LORD KUBERA (GOLD & LOTUS) ---
+    // A. Pink Sacred Lotus (Padmasana)
+    ctx.fillStyle = "#F06292";
+    for (let p = -3; p <= 3; p++) {
+      ctx.beginPath();
+      ctx.ellipse(cx + p * 20, cy + 62, 14, 26, (p * 15 * Math.PI) / 180, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = "#EC407A";
+    ctx.beginPath();
+    ctx.ellipse(cx, cy + 70, 75, 18, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // B. Maa Mahalakshmi Vigraha
+    // Golden Crown (Kirita)
+    ctx.fillStyle = "#FFD700";
+    ctx.beginPath();
+    ctx.moveTo(cx - 26, cy - 36);
+    ctx.lineTo(cx, cy - 88);
+    ctx.lineTo(cx + 26, cy - 36);
+    ctx.closePath();
+    ctx.fill();
+
+    // Divine Face
+    ctx.fillStyle = "#FFE0B2";
+    ctx.beginPath();
+    ctx.ellipse(cx, cy - 20, 24, 28, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Red Bindi & Kunkuma
+    ctx.fillStyle = "#D50000";
+    ctx.beginPath();
+    ctx.arc(cx, cy - 26, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Red Silk Saree & Gold Jewelry
+    ctx.fillStyle = "#C2185B";
+    ctx.beginPath();
+    ctx.moveTo(cx - 36, cy + 50);
+    ctx.quadraticCurveTo(cx, cy + 5, cx + 36, cy + 50);
+    ctx.fill();
+
+    // Upper Lotus Blossoms in Hands
+    ctx.fillStyle = "#FF80AB";
+    ctx.beginPath();
+    ctx.arc(cx - 55, cy - 35, 14, 0, Math.PI * 2);
+    ctx.arc(cx + 55, cy - 35, 14, 0, Math.PI * 2);
+    ctx.fill();
+
+    // C. Golden Pot (Kalasha) pouring Shower of Golden Coins (Akshaya Dhana)
+    ctx.fillStyle = "#FFD700";
+    ctx.beginPath();
+    ctx.arc(cx - 28, cy + 25, 14, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Cascading Gold Coins
+    ctx.fillStyle = "#FFD700";
+    ctx.strokeStyle = "#FF6F00";
+    ctx.lineWidth = 1;
+    const coins = [
+      [cx - 24, cy + 45], [cx - 16, cy + 56], [cx - 8, cy + 62],
+      [cx + 4, cy + 66], [cx + 18, cy + 68], [cx + 32, cy + 66],
+      [cx - 32, cy + 58], [cx + 8, cy + 58]
+    ];
+    coins.forEach(([x, y]) => {
+      ctx.beginPath();
+      ctx.ellipse(x, y, 7, 4.5, Math.PI / 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    });
+
+    // D. Lord Kubera's Navanidhi Emblem (Right side)
+    ctx.fillStyle = "#FFA000";
+    ctx.beginPath();
+    ctx.arc(cx + 58, cy + 25, 16, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#3E2723";
+    ctx.font = "bold 13px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("कुबेर", cx + 58, cy + 30);
+
+  } else if (deityKey === "shiva_somavara") {
+    // --- LORD SHIVA (MEDITATIVE KAILASH MAHAMRITYUNJAYA) ---
+    // A. Crescent Moon (Chandra) on hair
+    ctx.fillStyle = "#FFFFFF";
+    ctx.beginPath();
+    ctx.arc(cx + 20, cy - 65, 14, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#0f0515";
+    ctx.beginPath();
+    ctx.arc(cx + 16, cy - 67, 13, 0, Math.PI * 2);
+    ctx.fill();
+
+    // B. Matted Locks (Jata Mukuta) & Ganga
+    ctx.fillStyle = "#4E342E";
+    ctx.beginPath();
+    ctx.ellipse(cx, cy - 48, 30, 24, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Ganga Water Stream
+    ctx.strokeStyle = "#4FC3F7";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(cx + 8, cy - 65);
+    ctx.quadraticCurveTo(cx + 40, cy - 50, cx + 50, cy - 20);
+    ctx.stroke();
+
+    // C. Face & Blue Throat (Neelkantha)
+    ctx.fillStyle = "#CFD8DC";
+    ctx.beginPath();
+    ctx.ellipse(cx, cy - 18, 26, 30, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Tripundra (3 White Vibhuti Stripes)
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(cx - 16, cy - 32, 32, 2.5);
+    ctx.fillRect(cx - 16, cy - 28, 32, 2.5);
+    ctx.fillRect(cx - 16, cy - 24, 32, 2.5);
+
+    // Third Eye (Trinetra) & Red Bindu
+    ctx.fillStyle = "#D50000";
+    ctx.beginPath();
+    ctx.ellipse(cx, cy - 28, 3, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Blue Throat (Neelkantha)
+    ctx.fillStyle = "#0288D1";
+    ctx.beginPath();
+    ctx.ellipse(cx, cy + 14, 18, 8, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // D. Serpent Vasuki around neck
+    ctx.strokeStyle = "#7CB342";
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.arc(cx, cy + 18, 26, 0.2, Math.PI - 0.2);
+    ctx.stroke();
+
+    // E. Trishul & Damru (Left)
+    ctx.strokeStyle = "#FFD700";
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - 65, cy - 80);
+    ctx.lineTo(cx - 65, cy + 70);
+    ctx.stroke();
+    // Trishul Prongs
+    ctx.beginPath();
+    ctx.arc(cx - 65, cy - 65, 14, Math.PI, 0);
+    ctx.stroke();
+
+  } else if (deityKey === "surya_ravivara") {
+    // --- LORD SURYA NARAYANA (SUN GOD) ---
+    // 12 Blazing Sun Rays
+    ctx.strokeStyle = "#FFD700";
+    ctx.lineWidth = 3.5;
+    for (let r = 0; r < 12; r++) {
+      const angle = (r * 30 * Math.PI) / 180;
+      const x1 = cx + (radius - 12) * Math.cos(angle);
+      const y1 = cy + (radius - 12) * Math.sin(angle);
+      const x2 = cx + (radius + 14) * Math.cos(angle);
+      const y2 = cy + (radius + 14) * Math.sin(angle);
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    }
+
+    // Solar Halo & Crown
+    ctx.fillStyle = "#FFB300";
+    ctx.beginPath();
+    ctx.arc(cx, cy, 38, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Crown
+    ctx.fillStyle = "#FFD700";
+    ctx.beginPath();
+    ctx.moveTo(cx - 24, cy - 25);
+    ctx.lineTo(cx, cy - 68);
+    ctx.lineTo(cx + 24, cy - 25);
+    ctx.closePath();
+    ctx.fill();
+
+    // Two Red Lotuses in Hands
+    ctx.fillStyle = "#E91E63";
+    ctx.beginPath();
+    ctx.arc(cx - 48, cy, 14, 0, Math.PI * 2);
+    ctx.arc(cx + 48, cy, 14, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Solar Om Symbol
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = "bold 32px 'Cinzel', serif";
+    ctx.textAlign = "center";
+    ctx.fillText("ॐ", cx, cy + 12);
+
+  } else if (deityKey === "hanuman_murugan") {
+    // --- LORD HANUMAN & MURUGAN (COURAGE & VEL) ---
+    // Saffron Aura
+    ctx.fillStyle = "#FF6D00";
+    ctx.beginPath();
+    ctx.ellipse(cx - 18, cy - 10, 28, 34, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Golden Crown & Tilak
+    ctx.fillStyle = "#FFD700";
+    ctx.beginPath();
+    ctx.moveTo(cx - 38, cy - 35);
+    ctx.lineTo(cx - 18, cy - 75);
+    ctx.lineTo(cx + 2, cy - 35);
+    ctx.closePath();
+    ctx.fill();
+
+    // Lord Murugan's Sacred Vel (Spear) on Right
+    ctx.strokeStyle = "#FFD700";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(cx + 52, cy + 65);
+    ctx.lineTo(cx + 52, cy - 65);
+    ctx.stroke();
+    // Vel Blade Shape
+    ctx.fillStyle = "#FFB300";
+    ctx.beginPath();
+    ctx.moveTo(cx + 52, cy - 88);
+    ctx.lineTo(cx + 64, cy - 60);
+    ctx.lineTo(cx + 52, cy - 45);
+    ctx.lineTo(cx + 40, cy - 60);
+    ctx.closePath();
+    ctx.fill();
+
+    // Golden Gada (Mace) of Hanuman on Left
+    ctx.fillStyle = "#FFD700";
+    ctx.beginPath();
+    ctx.arc(cx - 55, cy + 25, 18, 0, Math.PI * 2);
+    ctx.fill();
+
+  } else if (deityKey === "ganesha_chaturthi") {
+    // --- LORD GANESHA (VIGHNAHARTA) ---
+    // Crown
+    ctx.fillStyle = "#FFD700";
+    ctx.beginPath();
+    ctx.moveTo(cx - 28, cy - 35);
+    ctx.lineTo(cx, cy - 85);
+    ctx.lineTo(cx + 28, cy - 35);
+    ctx.closePath();
+    ctx.fill();
+
+    // Elephant Head & Large Ears
+    ctx.fillStyle = "#FFA726";
+    ctx.beginPath();
+    ctx.arc(cx - 38, cy - 10, 20, 0, Math.PI * 2);
+    ctx.arc(cx + 38, cy - 10, 20, 0, Math.PI * 2);
+    ctx.arc(cx, cy - 8, 30, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Curved Trunk (Vakratunda)
+    ctx.strokeStyle = "#FB8C00";
+    ctx.lineWidth = 14;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(cx, cy + 6);
+    ctx.quadraticCurveTo(cx - 15, cy + 40, cx + 18, cy + 45);
+    ctx.stroke();
+
+    // Golden Sweet Modaka in trunk
+    ctx.fillStyle = "#FFD700";
+    ctx.beginPath();
+    ctx.arc(cx + 25, cy + 42, 8, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Holy Red Trishul Mark on forehead
+    ctx.fillStyle = "#D50000";
+    ctx.beginPath();
+    ctx.arc(cx, cy - 18, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+  } else {
+    // --- UNIVERSAL SACRED VEDIC OM ICON ---
+    ctx.fillStyle = "#FFD700";
+    ctx.font = "bold 88px 'Cinzel', serif";
+    ctx.textAlign = "center";
+    ctx.fillText("🕉️", cx, cy + 28);
+  }
+
+  ctx.restore();
+}
+
+/**
  * Renders the High-DPI Devotional Postcard onto an HTML5 Canvas.
+ * Fully responsive across all aspect ratios with ZERO text overflow.
  */
 export function drawDeityPostcardCanvas(canvas, panchangData, options = {}) {
   if (!canvas || !panchangData) return;
 
   const aspectRatioId = options.aspectRatio || "portrait";
   const themeId = options.theme || "gold";
-  const userLang = options.lang || "sa";
 
-  const arConfig = POSTER_ASPECT_RATIOS.find(a => a.id === aspectRatioId) || POSTER_ASPECT_RATIOS[1];
+  const arConfig = POSTER_ASPECT_RATIOS.find(a => a.id === aspectRatioId) || POSTER_ASPECT_RATIOS[0];
   const theme = POSTER_THEMES[themeId] || POSTER_THEMES.gold;
   const deityInfo = getDailyDeityInfo(panchangData);
 
@@ -329,175 +822,170 @@ export function drawDeityPostcardCanvas(canvas, panchangData, options = {}) {
   const W = canvas.width;
   const H = canvas.height;
 
-  // 1. Background Gradient
+  // Inner Safe Content Margins
+  const outerPad = 32;
+  const innerPad = 48;
+  const contentW = W - 140; // max content width strictly within golden inner borders
+  const cx = W / 2;
+
+  // 1. Devotional Background Gradient
   const bgGrad = ctx.createLinearGradient(0, 0, W, H);
   bgGrad.addColorStop(0, theme.bgStart);
-  bgGrad.addColorStop(0.5, theme.bgMid);
+  bgGrad.addColorStop(0.4, theme.bgMid);
   bgGrad.addColorStop(1, theme.bgEnd);
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, 0, W, H);
 
-  // 2. Ornate Border Frame
+  // 2. Ornate Golden Borders (Outer & Inner)
   ctx.save();
   ctx.strokeStyle = theme.border;
-  ctx.lineWidth = 14;
-  ctx.strokeRect(30, 30, W - 60, H - 60);
+  ctx.lineWidth = 10;
+  ctx.strokeRect(outerPad, outerPad, W - outerPad * 2, H - outerPad * 2);
 
-  ctx.strokeStyle = "rgba(255, 215, 0, 0.4)";
-  ctx.lineWidth = 3;
-  ctx.strokeRect(48, 48, W - 96, H - 96);
+  ctx.strokeStyle = "rgba(255, 215, 0, 0.45)";
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(innerPad, innerPad, W - innerPad * 2, H - innerPad * 2);
+
+  // Four Corner Ornate Filigrees
+  const corners = [
+    [innerPad + 8, innerPad + 8],
+    [W - innerPad - 8, innerPad + 8],
+    [innerPad + 8, H - innerPad - 8],
+    [W - innerPad - 8, H - innerPad - 8]
+  ];
+  ctx.fillStyle = theme.primary;
+  corners.forEach(([x, y]) => {
+    ctx.beginPath();
+    ctx.arc(x, y, 6, 0, Math.PI * 2);
+    ctx.fill();
+  });
   ctx.restore();
 
-  // 3. Devotional Header (Portal Title & Om)
-  ctx.fillStyle = theme.primary;
-  ctx.font = "bold 60px 'Cinzel', serif";
-  ctx.textAlign = "center";
-  ctx.fillText("ॐ  G U R U K R I P A  ॐ", W / 2, 120);
+  // Layout Vertical Positioning Geometry
+  let curY = 100;
 
-  ctx.fillStyle = theme.textMuted;
-  ctx.font = "700 28px 'Cinzel', serif";
-  ctx.letterSpacing = "4px";
-  ctx.fillText("SANATANA DHARMA DAILY PANCHANG ALMANAC", W / 2, 165);
+  // 3. Devotional Header (Portal Title)
+  drawFittedText(ctx, "ॐ   G U R U K R I P A   ॐ", cx, curY, contentW, 46, "bold", theme.primary);
+  curY += 34;
+  drawFittedText(ctx, "SANATANA DHARMA DAILY PANCHANG ALMANAC", cx, curY, contentW, 20, "700", theme.textMuted);
+  curY += 28;
 
-  // 4. Festival / Sacred Day Banner
+  // 4. Festival / Sacred Day Banner Ribbon
+  const ribbonH = 46;
+  const ribbonW = Math.min(contentW, 860);
   ctx.fillStyle = "rgba(255, 215, 0, 0.12)";
-  ctx.fillRect(70, 195, W - 140, 80);
+  ctx.fillRect(cx - ribbonW / 2, curY, ribbonW, ribbonH);
   ctx.strokeStyle = theme.border;
-  ctx.lineWidth = 2;
-  ctx.strokeRect(70, 195, W - 140, 80);
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(cx - ribbonW / 2, curY, ribbonW, ribbonH);
 
-  ctx.fillStyle = "#FFD700";
-  ctx.font = "bold 38px 'Noto Serif Devanagari', 'Cinzel', serif";
-  ctx.fillText(deityInfo.festival, W / 2, 248);
+  drawFittedText(ctx, deityInfo.festival, cx, curY + 30, ribbonW - 30, 26, "bold", "#FFD700");
+  curY += ribbonH + 20;
 
-  // 5. Presiding Deity Badge & Subtitle
-  ctx.fillStyle = theme.textLight;
-  ctx.font = "bold 44px 'Noto Serif Devanagari', 'Cinzel', serif";
-  ctx.fillText(deityInfo.deityName, W / 2, 335);
+  // 5. PROMINENT SACRED DEITY ARTWORK & VIGRAHA (Centerpiece)
+  const isTall = H >= 1300;
+  const vigrahaRadius = isTall ? 95 : 75;
+  const vigrahaCenterY = curY + vigrahaRadius + 5;
 
-  ctx.fillStyle = theme.textMuted;
-  ctx.font = "italic 26px 'Noto Sans', sans-serif";
-  ctx.fillText(deityInfo.deityTitle, W / 2, 375);
+  drawDeityVigrahaArtwork(ctx, deityInfo.deityKey, cx, vigrahaCenterY, vigrahaRadius, theme);
+
+  curY = vigrahaCenterY + vigrahaRadius + 28;
+
+  // Deity Name & Subtitle (Auto-fitted strictly inside contentW)
+  drawFittedText(ctx, deityInfo.deityName, cx, curY, contentW, isTall ? 34 : 28, "bold", theme.textLight);
+  curY += 26;
+  drawFittedText(ctx, deityInfo.deityTitle, cx, curY, contentW, isTall ? 20 : 17, "italic", theme.textMuted);
+  curY += 26;
 
   // 6. Panchang 5-Limbs Snapshot Card
-  const cardY = 415;
-  const cardH = 340;
-  ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
-  ctx.fillRect(70, cardY, W - 140, cardH);
+  const cardH = isTall ? 240 : 190;
+  const cardW = contentW;
+  const cardX = cx - cardW / 2;
+  const cardY = curY;
+
+  ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
+  ctx.fillRect(cardX, cardY, cardW, cardH);
   ctx.strokeStyle = "rgba(212, 175, 55, 0.5)";
-  ctx.lineWidth = 2;
-  ctx.strokeRect(70, cardY, W - 140, cardH);
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(cardX, cardY, cardW, cardH);
 
-  // Date and Location Header in Card
-  ctx.fillStyle = theme.primary;
-  ctx.font = "bold 32px 'Cinzel', serif";
-  ctx.fillText(`📍 ${panchangData.city}, ${panchangData.country}  •  ${panchangData.date}`, W / 2, cardY + 45);
+  // City & Date Header
+  drawFittedText(ctx, `📍 ${panchangData.city}, ${panchangData.country}  •  ${panchangData.date}`, cx, cardY + 32, cardW - 40, 22, "bold", theme.primary);
 
-  // Grid for the 5 Daily Limbs
-  ctx.textAlign = "left";
-  const col1X = 110;
-  const col2X = W / 2 + 30;
-  const startRowY = cardY + 95;
-  const lineSpacing = 44;
+  // 2-Column Panchang Details
+  const col1X = cardX + 35;
+  const col2X = cx + 25;
+  const colW = cardW / 2 - 45;
+  const panchangFontSize = isTall ? 17 : 14;
+  const lineGap = isTall ? 38 : 30;
+  let pY = cardY + 68;
 
-  const itemsCol1 = [
-    { label: "Tithi (Lunar Day):", val: `${panchangData.tithi ? panchangData.tithi.name : ''}` },
-    { label: "Nakshatra (Mansion):", val: `${panchangData.nakshatra ? panchangData.nakshatra.name : ''}` },
-    { label: "Vedic Vaara (Day):", val: `${panchangData.vaar ? panchangData.vaar.sanskrit : ''} (${panchangData.vaar ? panchangData.vaar.english : ''})` }
+  const items = [
+    { l: "Tithi (Lunar Day):", v: `${panchangData.tithi ? panchangData.tithi.name : ''}` },
+    { l: "Yoga & Karana:", v: `${panchangData.yoga || ''} / ${panchangData.karana || ''}` },
+    { l: "Nakshatra (Mansion):", v: `${panchangData.nakshatra ? panchangData.nakshatra.name : ''}` },
+    { l: "Sun & Moon Sign:", v: `Sun: ${panchangData.sunRashi || ''} • Moon: ${panchangData.moonRashi || ''}` },
+    { l: "Vedic Vaara (Day):", v: `${panchangData.vaar ? panchangData.vaar.sanskrit : ''} (${panchangData.vaar ? panchangData.vaar.english : ''})` },
+    { l: "Sunrise / Sunset:", v: `${panchangData.sunrise} — ${panchangData.sunset}` }
   ];
 
-  const itemsCol2 = [
-    { label: "Yoga & Karana:", val: `${panchangData.yoga || ''} / ${panchangData.karana || ''}` },
-    { label: "Sun & Moon Sign:", val: `Sun: ${panchangData.sunRashi || ''} • Moon: ${panchangData.moonRashi || ''}` },
-    { label: "Sunrise / Sunset:", val: `${panchangData.sunrise} — ${panchangData.sunset}` }
-  ];
+  for (let i = 0; i < 3; i++) {
+    const it1 = items[i * 2];
+    const it2 = items[i * 2 + 1];
 
-  itemsCol1.forEach((it, i) => {
+    ctx.textAlign = "left";
     ctx.fillStyle = theme.textMuted;
-    ctx.font = "700 24px 'Noto Sans', sans-serif";
-    ctx.fillText(it.label, col1X, startRowY + i * lineSpacing);
+    ctx.font = `700 ${panchangFontSize - 2}px 'Noto Sans', sans-serif`;
+    ctx.fillText(it1.l, col1X, pY);
+    ctx.fillText(it2.l, col2X, pY);
 
     ctx.fillStyle = "#FFFFFF";
-    ctx.font = "bold 26px 'Noto Sans', sans-serif";
-    ctx.fillText(it.val, col1X, startRowY + i * lineSpacing + 26);
-  });
+    ctx.font = `bold ${panchangFontSize}px 'Noto Sans', sans-serif`;
+    ctx.fillText(it1.v, col1X, pY + 18);
+    ctx.fillText(it2.v, col2X, pY + 18);
 
-  itemsCol2.forEach((it, i) => {
-    ctx.fillStyle = theme.textMuted;
-    ctx.font = "700 24px 'Noto Sans', sans-serif";
-    ctx.fillText(it.label, col2X, startRowY + i * lineSpacing);
-
-    ctx.fillStyle = "#FFFFFF";
-    ctx.font = "bold 26px 'Noto Sans', sans-serif";
-    ctx.fillText(it.val, col2X, startRowY + i * lineSpacing + 26);
-  });
-
-  // 7. Auspicious & Inauspicious Muhurta Highlights
-  const muhurtaY = cardY + cardH + 25;
-  ctx.textAlign = "center";
-  ctx.fillStyle = "rgba(46, 125, 50, 0.25)";
-  ctx.fillRect(70, muhurtaY, (W - 160) / 2, 70);
-  ctx.strokeStyle = "#4CAF50";
-  ctx.strokeRect(70, muhurtaY, (W - 160) / 2, 70);
-
-  ctx.fillStyle = "#81C784";
-  ctx.font = "700 22px 'Noto Sans', sans-serif";
-  ctx.fillText("✨ ABHIJIT / AMRIT KAAL (AUSPICIOUS)", 70 + (W - 160) / 4, muhurtaY + 28);
-  ctx.fillStyle = "#FFFFFF";
-  ctx.font = "bold 26px 'Noto Sans', sans-serif";
-  ctx.fillText(panchangData.muhurtas ? panchangData.muhurtas.abhijitMuhurta : "Midday", 70 + (W - 160) / 4, muhurtaY + 56);
-
-  ctx.fillStyle = "rgba(198, 40, 40, 0.25)";
-  ctx.fillRect(W / 2 + 10, muhurtaY, (W - 160) / 2, 70);
-  ctx.strokeStyle = "#E57373";
-  ctx.strokeRect(W / 2 + 10, muhurtaY, (W - 160) / 2, 70);
-
-  ctx.fillStyle = "#EF9A9A";
-  ctx.font = "700 22px 'Noto Sans', sans-serif";
-  ctx.fillText("⚠️ RAHU KALAM (INAUSPICIOUS)", W / 2 + 10 + (W - 160) / 4, muhurtaY + 28);
-  ctx.fillStyle = "#FFFFFF";
-  ctx.font = "bold 26px 'Noto Sans', sans-serif";
-  ctx.fillText(panchangData.muhurtas ? panchangData.muhurtas.rahuKalam : "Check Local", W / 2 + 10 + (W - 160) / 4, muhurtaY + 56);
-
-  // 8. Sacred Deity Invocation Mantra
-  const mantraY = muhurtaY + 115;
-  ctx.fillStyle = theme.primary;
-  ctx.font = "bold 34px 'Noto Serif Devanagari', serif";
-  ctx.fillText(deityInfo.mantra, W / 2, mantraY);
-
-  // 9. Auspicious Blessing Quote (Word Wrapped)
-  const quoteY = mantraY + 65;
-  ctx.fillStyle = theme.textLight;
-  ctx.font = "italic 28px 'Noto Serif Devanagari', serif";
-
-  const words = deityInfo.quote.split(" ");
-  let line = "";
-  let currY = quoteY;
-  const maxW = W - 180;
-
-  for (let n = 0; n < words.length; n++) {
-    const testLine = line + words[n] + " ";
-    const metrics = ctx.measureText(testLine);
-    if (metrics.width > maxW && n > 0) {
-      ctx.fillText(line, W / 2, currY);
-      line = words[n] + " ";
-      currY += 40;
-    } else {
-      line = testLine;
-    }
+    pY += lineGap;
   }
-  ctx.fillText(line, W / 2, currY);
+
+  curY += cardH + 16;
+
+  // 7. Auspicious & Inauspicious Muhurta Badges (Two side-by-side boxes)
+  const badgeW = (contentW - 20) / 2;
+  const badgeH = isTall ? 58 : 46;
+
+  // Auspicious Window
+  ctx.fillStyle = "rgba(46, 125, 50, 0.25)";
+  ctx.fillRect(cardX, curY, badgeW, badgeH);
+  ctx.strokeStyle = "#4CAF50";
+  ctx.strokeRect(cardX, curY, badgeW, badgeH);
+
+  drawFittedText(ctx, "✨ ABHIJIT / AMRIT KAAL (AUSPICIOUS)", cardX + badgeW / 2, curY + 20, badgeW - 10, isTall ? 15 : 13, "700", "#81C784");
+  drawFittedText(ctx, panchangData.muhurtas ? panchangData.muhurtas.abhijitMuhurta : "Midday", cardX + badgeW / 2, curY + 44, badgeW - 10, isTall ? 18 : 15, "bold", "#FFFFFF");
+
+  // Inauspicious Window
+  ctx.fillStyle = "rgba(198, 40, 40, 0.25)";
+  ctx.fillRect(cardX + badgeW + 20, curY, badgeW, badgeH);
+  ctx.strokeStyle = "#E57373";
+  ctx.strokeRect(cardX + badgeW + 20, curY, badgeW, badgeH);
+
+  drawFittedText(ctx, "⚠️ RAHU KALAM (INAUSPICIOUS)", cardX + badgeW + 20 + badgeW / 2, curY + 20, badgeW - 10, isTall ? 15 : 13, "700", "#EF9A9A");
+  drawFittedText(ctx, panchangData.muhurtas ? panchangData.muhurtas.rahuKalam : "Check Local", cardX + badgeW + 20 + badgeW / 2, curY + 44, badgeW - 10, isTall ? 18 : 15, "bold", "#FFFFFF");
+
+  curY += badgeH + 24;
+
+  // 8. Sacred Deity Invocation Mantra (Word Wrapped & Golden)
+  curY = drawWrappedLines(ctx, deityInfo.mantra, cx, curY, contentW, isTall ? 32 : 24, 2, isTall ? 24 : 18, "bold", theme.primary);
+  curY += 10;
+
+  // 9. Auspicious Blessing Quote (Word Wrapped in Italics)
+  curY = drawWrappedLines(ctx, `"${deityInfo.quote}"`, cx, curY, contentW, isTall ? 28 : 22, 3, isTall ? 19 : 15, "italic", theme.textLight);
 
   // 10. Special Festival Note
-  if (deityInfo.specialNote) {
-    currY += 45;
-    ctx.fillStyle = "#FFD700";
-    ctx.font = "bold 26px 'Noto Sans', sans-serif";
-    ctx.fillText(deityInfo.specialNote, W / 2, currY);
+  if (deityInfo.specialNote && curY < H - 85) {
+    curY += 8;
+    drawFittedText(ctx, deityInfo.specialNote, cx, curY, contentW, isTall ? 18 : 15, "bold", "#FFD700");
   }
 
-  // 11. Footer Branding & Short URL
-  ctx.fillStyle = theme.textMuted;
-  ctx.font = "700 24px 'Cinzel', serif";
-  ctx.fillText("Calculated with Lahiri Ayanamsa on GuruKripa • https://gurukripa.pages.dev", W / 2, H - 65);
+  // 11. Footer Branding
+  drawFittedText(ctx, "Calculated with Lahiri Ayanamsa on GuruKripa • https://gurukripa.pages.dev", cx, H - 48, contentW, 16, "600", theme.textMuted);
 }
