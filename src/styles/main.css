@@ -1038,3 +1038,351 @@ h1, h2, h3, .gk-brand-title, .gk-card-title, .gk-almanac-title {
   color: var(--color-primary);
   line-height: 1.45;
 }
+
+
+/* ====================================================================
+ * Classical Vedic Rāśi Kundali (Astrological Chart) Styles
+ * ==================================================================== */
+.gk-kundali-wrapper {
+  display: grid;
+  grid-template-columns: minmax(320px, 420px) 1fr;
+  gap: 24px;
+  align-items: start;
+  margin-top: 20px;
+}
+
+@media (max-width: 900px) {
+  .gk-kundali-wrapper {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gk-kundali-chart-box {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gk-chart-controls {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.gk-chart-select {
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-accent);
+  background: var(--color-surface);
+  color: var(--color-primary);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.gk-chart-select:focus {
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 2px rgba(230, 81, 0, 0.2);
+}
+
+.gk-kundali-svg {
+  width: 100%;
+  max-width: 380px;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+}
+
+/* SVG Chart Typography */
+.gk-k-sign {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 800;
+  fill: #ffd54f;
+}
+
+.gk-k-sign-si {
+  font-family: 'Cinzel', serif;
+  font-size: 10.5px;
+  font-weight: 700;
+  fill: #ffd54f;
+}
+
+.gk-k-planets {
+  font-family: 'Noto Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 800;
+  fill: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+.gk-k-planets-circ {
+  font-family: 'Noto Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  fill: #ffffff;
+}
+
+.gk-k-house-sub {
+  font-family: 'Cinzel', serif;
+  font-size: 9.5px;
+  font-weight: 600;
+  fill: #e0a96d;
+  letter-spacing: 0.04em;
+}
+
+.gk-k-center-om {
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+  fill: #ffd700;
+  font-weight: bold;
+}
+
+.gk-k-center-title {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  font-weight: 800;
+  fill: #ffffff;
+  letter-spacing: 0.08em;
+}
+
+.gk-k-lagna-badge {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  font-weight: 800;
+  fill: #ff5252;
+}
+
+.gk-k-glyph {
+  font-size: 18px;
+  fill: #ffd54f;
+}
+
+.gk-kundali-details-box {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ====================================================================
+ * Dvadasha Jyotirlinga Mahakshetra Interactive Styles
+ * ==================================================================== */
+.gk-jyotir-header-banner {
+  background: linear-gradient(135deg, #1b0a2a 0%, #311146 50%, #4a154b 100%);
+  color: #FFFFFF;
+  border-radius: var(--radius-md);
+  padding: 30px;
+  margin-bottom: 30px;
+  border: 1px solid var(--color-accent);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.gk-jyotir-header-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.85rem;
+  color: #FFD700;
+  margin-bottom: 8px;
+}
+
+.gk-jyotir-stotram-box {
+  font-family: 'Noto Serif Devanagari', serif;
+  font-size: 1.2rem;
+  color: #FFE082;
+  margin: 14px auto;
+  max-width: 800px;
+  line-height: 1.7;
+}
+
+.gk-jyotir-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 24px;
+}
+
+@media (max-width: 480px) {
+  .gk-jyotir-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gk-jyotir-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.gk-jyotir-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-accent);
+}
+
+.gk-jyotir-top {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.gk-jyotir-icon-wrapper {
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #140720;
+  padding: 4px;
+  border: 2px solid var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gk-jyotir-icon-svg {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.gk-jyotir-names {
+  flex: 1;
+}
+
+.gk-jyotir-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 2px;
+}
+
+.gk-jyotir-sanskrit {
+  font-family: 'Noto Serif Devanagari', serif;
+  font-size: 1.05rem;
+  color: var(--color-secondary);
+  font-weight: 600;
+}
+
+.gk-jyotir-location {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-top: 3px;
+}
+
+/* What Visit Does Box */
+.gk-jyotir-benefits-box {
+  background: rgba(212, 175, 55, 0.08);
+  border-left: 4px solid var(--color-accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.gk-jyotir-benefit-row {
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.gk-jyotir-benefit-row:last-child {
+  margin-bottom: 0;
+}
+
+.gk-jyotir-benefit-row strong {
+  color: var(--color-primary);
+  display: inline-block;
+  min-width: 110px;
+}
+
+/* Specific Poojas Track */
+.gk-jyotir-poojas-box {
+  margin-bottom: 16px;
+}
+
+.gk-jyotir-section-heading {
+  font-family: 'Cinzel', serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-secondary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gk-pooja-pill {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  font-size: 0.82rem;
+}
+
+.gk-pooja-pill-title {
+  font-weight: 700;
+  color: var(--color-primary);
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.gk-pooja-pill-timing {
+  font-size: 0.75rem;
+  color: var(--color-secondary);
+}
+
+.gk-pooja-pill-desc {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  line-height: 1.35;
+}
+
+/* Tri-Fold History Tabs */
+.gk-history-accordion {
+  margin-top: auto;
+  border-top: 1px solid var(--color-border);
+  padding-top: 14px;
+}
+
+.gk-history-block {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--color-text);
+  margin-bottom: 10px;
+}
+
+.gk-history-tag {
+  font-weight: 700;
+  color: var(--color-secondary);
+  text-transform: uppercase;
+  font-size: 0.74rem;
+  letter-spacing: 0.03em;
+  display: block;
+  margin-bottom: 2px;
+}

@@ -7,8 +7,16 @@ import CITIES from './data/cities.json';
 import { calculatePanchang } from './data/panchang-engine.js';
 import { SUPPORTED_LANGUAGES, transliterate } from './data/transliteration-engine.js';
 import { SLOKAS_DATA, DEITY_HUBS } from './data/slokas-data.js';
+import { JYOTIRLINGAS } from './data/jyotirlinga-data.js';
 import { STORIES_DATA } from './data/stories-data.js';
 import { JapaMalaEngine } from './data/japa-engine.js';
+import { 
+  buildChartData, 
+  renderNorthIndianChart, 
+  renderSouthIndianChart, 
+  renderEastIndianChart, 
+  renderWestIndianChart 
+} from './data/chart-engine.js';
 
 class GuruKripaApp {
   constructor() {
@@ -17,7 +25,8 @@ class GuruKripaApp {
     this.selectedDate = new Date();
     this.selectedLang = localStorage.getItem('gk_lang') || 'sa';
     this.currentView = this.getViewFromHash();
-    this.panchangTab = 'overview'; // 'overview' | 'gowri' | 'choghadiya' | 'planets'
+    this.panchangTab = 'overview'; // 'overview' | 'kundali' | 'gowri' | 'choghadiya' | 'planets'
+    this.chartStyle = 'north'; // 'north' [Default] | 'south' | 'east' | 'west'
     this.slokaFontSize = 1.35; // rem
     this.showSabdartha = true;
     this.cityModalOpen = false;
@@ -59,7 +68,7 @@ class GuruKripaApp {
 
   getViewFromHash() {
     const hash = window.location.hash.replace('#', '').split('?')[0];
-    if (['panchang', 'stotras', 'japa', 'stories'].includes(hash)) {
+    if (['panchang', 'jyotirlingas', 'stotras', 'japa', 'stories'].includes(hash)) {
       return hash;
     }
     return 'panchang';
@@ -151,47 +160,115 @@ class GuruKripaApp {
       return;
     }
     this.stopChantSound();
+
+    let targetItem = SLOKAS_DATA.find(x => x.id === slokaId);
+    if (!targetItem) {
+      targetItem = JYOTIRLINGAS.find(x => x.id === slokaId);
+    }
+    if (!targetItem) return;
+
     this.playingSlokaId = slokaId;
     this.render();
 
+    // 1. Genuine Sanskrit Speech Synthesis (Chanting the exact sloka text)
+    const rawText = targetItem.devanagari || targetItem.stotramVerse || targetItem.sanskritName || "";
+    const cleanChantText = rawText
+      .replace(/[॥।\r\n]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if ('speechSynthesis' in window && cleanChantText) {
+      try {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(cleanChantText);
+        utterance.lang = 'hi-IN'; // Standard Indic / Sanskrit phonetics
+        utterance.rate = 0.82 * this.chantSpeed; // Traditional slow, reverent Vedic chanting cadence
+        utterance.pitch = 0.95; // Deep resonant chest tone
+
+        // Pick an Indic voice if installed on system
+        const voices = window.speechSynthesis.getVoices();
+        const indicVoice = voices.find(v => 
+          (v.lang && (v.lang.startsWith('hi') || v.lang.startsWith('sa') || v.lang.includes('IN'))) ||
+          (v.name && (v.name.includes('Hindi') || v.name.includes('India') || v.name.includes('Kalpana') || v.name.includes('Lekha')))
+        );
+        if (indicVoice) {
+          utterance.voice = indicVoice;
+        }
+
+        utterance.onend = () => {
+          this.stopChantSound();
+        };
+        utterance.onerror = () => {
+          this.stopChantSound();
+        };
+
+        this.currentUtterance = utterance;
+        window.speechSynthesis.speak(utterance);
+      } catch (e) {
+        console.warn("Speech synthesis notice:", e);
+      }
+    }
+
+    // 2. Meditative Tanpura Harmonic Drone (Om 136.1 Hz + harmonics)
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      this.audioCtx = new AudioCtx();
-      
-      // Sacred meditative Tanpura / Singing Bowl resonance synthesis
-      const osc = this.audioCtx.createOscillator();
-      const gain = this.audioCtx.createGain();
-      const baseFreq = 136.1; // Om cosmic frequency in Hz
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(baseFreq * this.chantSpeed, this.audioCtx.currentTime);
+      if (AudioCtx) {
+        this.audioCtx = new AudioCtx();
+        const droneGain = this.audioCtx.createGain();
+        droneGain.gain.setValueAtTime(0.01, this.audioCtx.currentTime);
+        droneGain.gain.exponentialRampToValueAtTime(0.08, this.audioCtx.currentTime + 1.0);
 
-      gain.gain.setValueAtTime(0.01, this.audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.25, this.audioCtx.currentTime + 0.8);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + (6.0 / this.chantSpeed));
+        const freqs = [136.1, 204.15, 272.2];
+        this.droneOscillators = freqs.map((f, i) => {
+          const osc = this.audioCtx.createOscillator();
+          const g = this.audioCtx.createGain();
+          osc.type = i === 0 ? 'sine' : 'triangle';
+          osc.frequency.setValueAtTime(f, this.audioCtx.currentTime);
+          g.gain.setValueAtTime(1.0 / (i + 1), this.audioCtx.currentTime);
+          osc.connect(g);
+          g.connect(droneGain);
+          osc.start();
+          return osc;
+        });
 
-      osc.connect(gain);
-      gain.connect(this.audioCtx.destination);
-      osc.start();
-      osc.stop(this.audioCtx.currentTime + (6.2 / this.chantSpeed));
-
-      this.audioTimer = setTimeout(() => {
-        this.stopChantSound();
-      }, (6200 / this.chantSpeed));
+        droneGain.connect(this.audioCtx.destination);
+        this.droneGain = droneGain;
+      }
     } catch (e) {
-      console.warn("Chant audio synthesis notice:", e);
+      console.warn("Chant audio drone notice:", e);
     }
   }
 
   stopChantSound() {
-    if (this.audioTimer) clearTimeout(this.audioTimer);
-    if (this.audioCtx) {
-      try { this.audioCtx.close(); } catch(e) {}
-      this.audioCtx = null;
+    if ('speechSynthesis' in window) {
+      try { window.speechSynthesis.cancel(); } catch (e) {}
     }
+    this.currentUtterance = null;
+
+    if (this.audioCtx) {
+      try {
+        if (this.droneGain) {
+          this.droneGain.gain.exponentialRampToValueAtTime(0.0001, this.audioCtx.currentTime + 0.3);
+        }
+        setTimeout(() => {
+          if (this.droneOscillators) {
+            this.droneOscillators.forEach(o => { try { o.stop(); } catch(e){} });
+            this.droneOscillators = null;
+          }
+          if (this.audioCtx) {
+            this.audioCtx.close().catch(() => {});
+            this.audioCtx = null;
+          }
+        }, 350);
+      } catch (e) {
+        this.audioCtx = null;
+      }
+    }
+
     this.playingSlokaId = null;
-    const playBtn = document.querySelector('.gk-audio-play-btn');
-    if (playBtn) playBtn.innerHTML = '▶';
+    document.querySelectorAll('.gk-audio-play-btn').forEach(btn => {
+      btn.innerHTML = '▶';
+    });
   }
 
   openCardMaker(slokaId) {
@@ -409,6 +486,7 @@ class GuruKripaApp {
         <div class="gk-nav-subbar-inner">
           <ul class="gk-nav-links">
             <li><a href="#panchang" class="${this.currentView === 'panchang' ? 'active' : ''}">Panchangam</a></li>
+            <li><a href="#jyotirlingas" class="${this.currentView === 'jyotirlingas' ? 'active' : ''}">12 Jyotirlingas</a></li>
             <li><a href="#stotras" class="${this.currentView === 'stotras' ? 'active' : ''}">Stotras & 12 Deities</a></li>
             <li><a href="#japa" class="${this.currentView === 'japa' ? 'active' : ''}">108 Japa Mala</a></li>
             <li><a href="#stories" class="${this.currentView === 'stories' ? 'active' : ''}">Dharmic Stories</a></li>
@@ -425,6 +503,7 @@ class GuruKripaApp {
   renderView() {
     switch (this.currentView) {
       case 'panchang': return this.renderPanchang();
+      case 'jyotirlingas': return this.renderJyotirlingas();
       case 'stotras': return this.renderStotras();
       case 'japa': return this.renderJapa();
       case 'stories': return this.renderStories();
@@ -475,12 +554,14 @@ class GuruKripaApp {
 
         <div class="gk-tabs">
           <button class="gk-tab-btn ${this.panchangTab === 'overview' ? 'active' : ''}" data-tab="overview">5 Daily Limbs</button>
+          <button class="gk-tab-btn ${this.panchangTab === 'kundali' ? 'active' : ''}" data-tab="kundali">Rāśi Kundali (Chart of the Day)</button>
           <button class="gk-tab-btn ${this.panchangTab === 'gowri' ? 'active' : ''}" data-tab="gowri">Gowri Panchangam</button>
           <button class="gk-tab-btn ${this.panchangTab === 'choghadiya' ? 'active' : ''}" data-tab="choghadiya">Choghadiya Muhurtas</button>
           <button class="gk-tab-btn ${this.panchangTab === 'planets' ? 'active' : ''}" data-tab="planets">Planetary Longitudes</button>
         </div>
 
         ${this.panchangTab === 'overview' ? this.renderPanchangOverview(data) : ''}
+        ${this.panchangTab === 'kundali' ? this.renderPanchangKundali(data) : ''}
         ${this.panchangTab === 'gowri' ? this.renderGowriTable(data.gowriPanchangam) : ''}
         ${this.panchangTab === 'choghadiya' ? this.renderChoghadiyaTable(data.choghadiya) : ''}
         ${this.panchangTab === 'planets' ? this.renderPlanetsTable(data.planets, data.ayanamsa) : ''}
@@ -490,33 +571,124 @@ class GuruKripaApp {
     `;
   }
 
+  renderPanchangKundali(data) {
+    const chartData = buildChartData(data.lagna.rashiIndex, data.lagna.deg, data.planets);
+    let chartSvg = '';
+    if (this.chartStyle === 'south') {
+      chartSvg = renderSouthIndianChart(chartData);
+    } else if (this.chartStyle === 'east') {
+      chartSvg = renderEastIndianChart(chartData);
+    } else if (this.chartStyle === 'west') {
+      chartSvg = renderWestIndianChart(chartData);
+    } else {
+      chartSvg = renderNorthIndianChart(chartData); // Default North Indian (Parashara Diamond)
+    }
+
+    return `
+      <div class="gk-card" style="margin-top:16px;">
+        <div class="gk-chart-controls">
+          <div>
+            <h3 style="color:var(--color-primary); margin:0 0 4px 0; font-size:1.2rem;">
+              Vedic Rāśi Kundali (Chart of the Day)
+            </h3>
+            <p style="font-size:0.85rem; color:var(--color-text-muted); margin:0;">
+              Calculated for ${this.selectedCity.name} (${data.coordinates}) using Lahiri Ayanamsa (${data.ayanamsa.formatted || data.ayanamsa})
+            </p>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <label for="gk-chart-style-select" style="font-size:0.85rem; font-weight:700; color:var(--color-secondary);">Chart Style:</label>
+            <select id="gk-chart-style-select" class="gk-chart-select">
+              <option value="north" ${this.chartStyle === 'north' ? 'selected' : ''}>North Indian (Parashara Diamond) [Default]</option>
+              <option value="south" ${this.chartStyle === 'south' ? 'selected' : ''}>South Indian (Fixed-Sign Grid)</option>
+              <option value="east" ${this.chartStyle === 'east' ? 'selected' : ''}>East Indian (Bengali / Surya)</option>
+              <option value="west" ${this.chartStyle === 'west' ? 'selected' : ''}>West Indian (Circular Wheel / Western)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="gk-kundali-wrapper">
+          <div class="gk-kundali-chart-box">
+            ${chartSvg}
+            <div style="font-size:0.82rem; color:var(--color-text); margin-top:14px; text-align:center; line-height:1.4;">
+              Ascendant (Lagna): <strong style="color:var(--color-primary);">${data.lagna.rashi} (${data.lagna.rashiEnglish}) ${data.lagna.deg}° ${data.lagna.min}'</strong><br>
+              <span style="font-size:0.76rem; color:var(--color-text-muted);">Nakshatra: ${data.lagna.nakshatra} (Pada ${data.lagna.pada})</span>
+            </div>
+          </div>
+
+          <div class="gk-kundali-details-box">
+            <h4 style="color:var(--color-primary); margin-top:0; margin-bottom:12px; border-bottom:1px solid var(--color-border); padding-bottom:6px;">
+              Planetary Occupation of Houses (Bhava Sthiti)
+            </h4>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:10px;">
+              ${data.planets.map(p => `
+                <div style="background:var(--color-background); border:1px solid var(--color-border); border-radius:6px; padding:8px 12px; font-size:0.85rem;">
+                  <div style="font-weight:700; color:var(--color-primary); display:flex; justify-content:space-between;">
+                    <span>${p.name.split(' ')[0]} (${p.sanskrit})</span>
+                    <span style="color:var(--color-secondary); font-size:0.75rem;">${p.status}</span>
+                  </div>
+                  <div style="color:var(--color-text-muted); font-size:0.8rem; margin-top:2px;">
+                    ${p.rashi} (${p.rashiEnglish}) • ${p.degInRashi}
+                  </div>
+                  <div style="font-size:0.75rem; color:var(--color-accent); margin-top:2px;">
+                    ${p.nakshatra} (Pada ${p.pada})
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+
+            <div style="margin-top:18px; padding:12px; background:rgba(212,175,55,0.08); border-left:3px solid var(--color-accent); border-radius:0 6px 6px 0; font-size:0.82rem; line-height:1.45;">
+              <strong style="color:var(--color-primary);">Astrological Reading Guidance:</strong>
+              Planets marked in parentheses (e.g. <em>(Ra), (Ke)</em>) are in retrograde (Vakra) motion. The Ascendant (Lagna) anchors House 1 in the North Indian chart, while in South Indian charts it is indicated by an oblique stroke.
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   renderPanchangOverview(data) {
+    const cal = data.calendar || {};
     return `
       <div class="gk-panchang-hero">
         <div class="gk-card">
           <div class="gk-card-title"><span>Sunrise / Sunset</span><span>☀️</span></div>
           <div class="gk-card-value">${data.sunrise} — ${data.sunset}</div>
           <div class="gk-card-meta">Solar Noon: ${data.solarNoon} (Day Duration: ${data.dayDuration})</div>
+          <div style="font-size:0.76rem; color:var(--color-secondary); margin-top:4px;">
+            🌙 Moonrise: ${data.moonrise || 'N/A'} • Moonset: ${data.moonset || 'N/A'}
+          </div>
         </div>
         <div class="gk-card">
           <div class="gk-card-title"><span>Tithi (Lunar Day)</span><span>🌙</span></div>
           <div class="gk-card-value">${transliterate(data.tithi.name, this.selectedLang)}</div>
           <div class="gk-card-meta">Paksha: ${data.tithi.paksha} • Progress: ${data.tithi.progress}% • Deity: ${data.tithi.deity}</div>
+          <div style="font-size:0.76rem; color:var(--color-text-muted); margin-top:4px;">
+            Ends at: ${data.tithiEndTime || 'N/A'}
+          </div>
         </div>
         <div class="gk-card">
           <div class="gk-card-title"><span>Nakshatra (Lunar Mansion)</span><span>✨</span></div>
           <div class="gk-card-value">${transliterate(data.nakshatra.name, this.selectedLang)} (Pada ${data.nakshatra.pada})</div>
           <div class="gk-card-meta">Lord: ${data.nakshatra.lord} • Deity: ${data.nakshatra.deity}</div>
+          <div style="font-size:0.76rem; color:var(--color-text-muted); margin-top:4px;">
+            Ends at: ${data.nakshatraEndTime || 'N/A'}
+          </div>
         </div>
         <div class="gk-card">
           <div class="gk-card-title"><span>Yoga & Karana</span><span>🌀</span></div>
           <div class="gk-card-value">${transliterate(data.yoga, this.selectedLang)} / ${transliterate(data.karana, this.selectedLang)}</div>
           <div class="gk-card-meta">Vaar: ${transliterate(data.vaar.sanskrit, this.selectedLang)} (${data.vaar.english} - Lord: ${data.vaar.lord})</div>
+          <div style="font-size:0.76rem; color:var(--color-text-muted); margin-top:4px;">
+            Lagna: ${data.lagna ? `${data.lagna.rashi} (${data.lagna.deg}°)` : 'Calculated'}
+          </div>
         </div>
         <div class="gk-card">
           <div class="gk-card-title"><span>Sun & Moon Rashi</span><span>♈</span></div>
           <div class="gk-card-value">${transliterate(data.moonRashi, this.selectedLang)}</div>
           <div class="gk-card-meta">Sun: ${transliterate(data.sunRashi, this.selectedLang)} (Chitrapaksha Lahiri Ayanamsa)</div>
+          <div style="font-size:0.76rem; color:var(--color-text-muted); margin-top:4px;">
+            Ayana: ${cal.ayana || 'Uttarayana'} • Ritu: ${cal.ritu || 'Sharad'}
+          </div>
         </div>
         <div class="gk-card">
           <div class="gk-card-title"><span>Auspicious Windows</span><span>🌟</span></div>
@@ -524,13 +696,16 @@ class GuruKripaApp {
             Abhijit: ${data.muhurtas.abhijitMuhurta}
           </div>
           <div class="gk-card-meta">Brahma Muhurta: ${data.muhurtas.brahmaMuhurta}</div>
+          <div style="font-size:0.76rem; color:var(--color-good); margin-top:4px;">
+            Amrit Kaal: ${data.muhurtas.amritKaal || 'N/A'}
+          </div>
         </div>
       </div>
 
-      <!-- Inauspicious & Auspicious Timings Card -->
+      <!-- Drik Panchang Comprehensive Muhurta & Kaalam Schedule -->
       <div class="gk-card" style="margin-top:20px;">
         <h3 style="color:var(--color-primary); margin-bottom:12px; font-size:1.15rem;">
-          Daily Muhurta & Kaalam Schedule (${this.selectedCity.name})
+          Drik Panchang Muhurta & Kaalam Schedule (${this.selectedCity.name})
         </h3>
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px;">
           <div style="background:rgba(198,40,40,0.06); padding:12px; border-radius:6px; border-left:4px solid var(--color-inauspicious);">
@@ -545,7 +720,7 @@ class GuruKripaApp {
             <div style="font-weight:700; color:var(--color-secondary); font-size:0.9rem;">
               ⏳ Yamaganda Kalam
             </div>
-            <div style="font-size:1.1rem; font-weight:700; margin:4px 0;">${data.muhurtas.yamaganda}</div>
+            <div style="font-size:1.1rem; font-weight:700; margin:4px 0;">${data.muhurtas.yamagandam || data.muhurtas.yamaganda}</div>
             <div style="font-size:0.75rem; color:var(--color-text-muted);">Ruled by Yama; unsuitable for new investments</div>
           </div>
 
@@ -563,6 +738,49 @@ class GuruKripaApp {
             </div>
             <div style="font-size:1.1rem; font-weight:700; margin:4px 0;">${data.muhurtas.abhijitMuhurta}</div>
             <div style="font-size:0.75rem; color:var(--color-text-muted);">Midday victory window; destroys all doshas</div>
+          </div>
+
+          <div style="background:rgba(76,175,80,0.06); padding:12px; border-radius:6px; border-left:4px solid #66bb6a;">
+            <div style="font-weight:700; color:#2e7d32; font-size:0.9rem;">
+              🍯 Amrit Kaal (Nectar Window)
+            </div>
+            <div style="font-size:1.1rem; font-weight:700; margin:4px 0;">${data.muhurtas.amritKaal || 'N/A'}</div>
+            <div style="font-size:0.75rem; color:var(--color-text-muted);">Ideal for spiritual initiation, medicine, ceremonies</div>
+          </div>
+
+          <div style="background:rgba(142,36,170,0.06); padding:12px; border-radius:6px; border-left:4px solid #ab47bc;">
+            <div style="font-weight:700; color:#7b1fa2; font-size:0.9rem;">
+              🏹 Vijaya Muhurta
+            </div>
+            <div style="font-size:1.1rem; font-weight:700; margin:4px 0;">${data.muhurtas.vijayaMuhurta || 'N/A'}</div>
+            <div style="font-size:0.75rem; color:var(--color-text-muted);">Window of conquest, endeavors, and ventures</div>
+          </div>
+
+          <div style="background:rgba(255,160,0,0.06); padding:12px; border-radius:6px; border-left:4px solid #ffb300;">
+            <div style="font-weight:700; color:#f57c00; font-size:0.9rem;">
+              🌅 Godhuli Muhurta
+            </div>
+            <div style="font-size:1.1rem; font-weight:700; margin:4px 0;">${data.muhurtas.godhuliMuhurta || 'N/A'}</div>
+            <div style="font-size:0.75rem; color:var(--color-text-muted);">Twilight window of peace and home worship</div>
+          </div>
+
+          <div style="background:rgba(183,28,28,0.06); padding:12px; border-radius:6px; border-left:4px solid #d32f2f;">
+            <div style="font-weight:700; color:#c62828; font-size:0.9rem;">
+              ⛔ Dur Muhurtam & Varjyam
+            </div>
+            <div style="font-size:0.95rem; font-weight:700; margin:4px 0;">Dur: ${data.muhurtas.durMuhurtam || 'N/A'}</div>
+            <div style="font-size:0.8rem; color:var(--color-text-muted);">Varjyam: ${data.muhurtas.varjyam || 'N/A'}</div>
+          </div>
+        </div>
+
+        <!-- Disha Shool & Travel Guidance -->
+        <div style="margin-top:16px; padding:12px 16px; background:rgba(230,81,0,0.06); border-radius:6px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div>
+            <strong style="color:var(--color-secondary);">🧭 Disha Shool (Travel Restriction):</strong>
+            <span style="font-weight:700; margin-left:6px;">${cal.dishaShool || 'West'}</span>
+          </div>
+          <div style="font-size:0.85rem; color:var(--color-text-muted);">
+            <strong>Remedy if traveling is unavoidable:</strong> ${cal.dishaShoolRemedy || 'Consume betel leaf or ghee'}
           </div>
         </div>
       </div>
@@ -722,6 +940,113 @@ class GuruKripaApp {
     `;
   }
 
+  renderJyotirlingas() {
+    return `
+      <section>
+        <div class="gk-jyotir-header-banner">
+          <div class="gk-jyotir-header-title">
+            द्वादश ज्योतिर्लिङ्ग महाक्षेत्राणि
+          </div>
+          <div style="font-family:'Cinzel',serif; font-size:1.15rem; color:#FFE0B2; margin-bottom:6px;">
+            The 12 Sacred Jyotirlingas of Lord Shiva
+          </div>
+          <div class="gk-jyotir-stotram-box">
+            सौराष्ट्रे सोमनाथं च श्रीशैले मल्लिकार्जुनम् ।<br>
+            उज्जयिन्यां महाकालमोंकारममलेश्वरम् ॥<br>
+            परल्यां वैद्यनाथं च डाकिन्यां भीमशङ्करम् ।<br>
+            सेतुबन्धे तु रामेशं नागेशं दारुकावने ॥<br>
+            वाराणस्यां च विश्वेशं त्र्यम्बकं गौतमीतटे ।<br>
+            हिमवन्ते तु केदारं घुश्मेशं च शिवालये ॥
+          </div>
+          <p style="font-size:0.88rem; color:#FFFFFF; opacity:0.9; max-width:760px; margin:0 auto; line-height:1.5;">
+            Sacred pilgrimage guide detailing divine Vigraha manifestations, astrologically verified Parikaras & Dosha Nivarana remedies, specific temple pooja rituals, and authentic puranic, local sthala, and folklore histories.
+          </p>
+        </div>
+
+        <div class="gk-jyotir-grid">
+          ${JYOTIRLINGAS.map(j => `
+            <div class="gk-jyotir-card" id="jyotir-${j.id}">
+              <div class="gk-jyotir-top">
+                <div class="gk-jyotir-icon-wrapper">
+                  ${j.iconSvg}
+                </div>
+                <div class="gk-jyotir-names">
+                  <div class="gk-jyotir-title">${j.name}</div>
+                  <div class="gk-jyotir-sanskrit">${transliterate(j.sanskritName, this.selectedLang)}</div>
+                  <div class="gk-jyotir-location">📍 ${j.location}</div>
+                  <div style="font-size:0.75rem; color:var(--color-secondary); margin-top:2px;">
+                    🌊 ${j.riverOrSea}
+                  </div>
+                </div>
+              </div>
+
+              <!-- What a Visit Can Do (Parikaras & Dosha Nivarana) -->
+              <div class="gk-jyotir-benefits-box">
+                <div class="gk-jyotir-section-heading">
+                  <span>🪷</span> Spiritual Upliftment & Remedies
+                </div>
+                <div class="gk-jyotir-benefit-row">
+                  <strong>🛡️ Parikaras:</strong> ${j.whatVisitDoes.parikaras}
+                </div>
+                <div class="gk-jyotir-benefit-row">
+                  <strong>🔱 Dosha Nivarana:</strong> ${j.whatVisitDoes.doshaNivarana}
+                </div>
+                <div class="gk-jyotir-benefit-row">
+                  <strong>✨ Upliftment:</strong> ${j.whatVisitDoes.spiritualUpliftment}
+                </div>
+              </div>
+
+              <!-- Specific Pooja Practices -->
+              <div class="gk-jyotir-poojas-box">
+                <div class="gk-jyotir-section-heading">
+                  <span>🪔</span> Specific Pooja Practices
+                </div>
+                ${j.specificPoojas.map(p => `
+                  <div class="gk-pooja-pill">
+                    <div class="gk-pooja-pill-title">
+                      <span>${p.name}</span>
+                      <span class="gk-pooja-pill-timing">${p.timing}</span>
+                    </div>
+                    <div class="gk-pooja-pill-desc">${p.details}</div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <!-- Deep History (Puranic, Local, Folklore) -->
+              <div class="gk-history-accordion">
+                <div class="gk-jyotir-section-heading" style="margin-bottom:10px;">
+                  <span>📜</span> Sacred Temple History
+                </div>
+                <div class="gk-history-block">
+                  <span class="gk-history-tag">📖 Puranic History (Shiva Purana)</span>
+                  ${j.history.puranic}
+                </div>
+                <div class="gk-history-block">
+                  <span class="gk-history-tag">🏛️ Local Sthala Mahatmyam</span>
+                  ${j.history.local}
+                </div>
+                <div class="gk-history-block">
+                  <span class="gk-history-tag">✨ Living Tradition & Folklore</span>
+                  ${j.history.folklore}
+                </div>
+              </div>
+
+              <!-- Authentic Chanting Button for this Shrine -->
+              <div style="margin-top:14px; padding-top:12px; border-top:1px dashed var(--color-border); display:flex; justify-content:space-between; align-items:center;">
+                <button class="gk-btn gk-audio-play-btn" data-play-id="${j.id}" style="font-size:0.8rem; padding:6px 12px; display:inline-flex; align-items:center; gap:6px;">
+                  ${this.playingSlokaId === j.id ? '⏸ Pause Chant' : '▶ Chant Verse'}
+                </button>
+                <span style="font-family:'Noto Serif Devanagari',serif; font-size:0.85rem; color:var(--color-text-muted);">
+                  ${j.stotramVerse}
+                </span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+    `;
+  }
+
   renderStotras() {
     // Filtered by deity and category
     const filteredSlokas = SLOKAS_DATA.filter(s => {
@@ -803,11 +1128,11 @@ class GuruKripaApp {
             <!-- Chanting Audio Bar with Speed Selector -->
             <div class="gk-chant-player">
               <div class="gk-audio-controls-left">
-                <button class="gk-audio-play-btn" data-play-id="${s.id}" title="Play Meditative Vedic Tanpura Chime">
+                <button class="gk-audio-play-btn" data-play-id="${s.id}" title="Chant sacred Sanskrit verse with temple Tanpura">
                   ${this.playingSlokaId === s.id ? '⏸' : '▶'}
                 </button>
                 <span class="gk-audio-label">
-                  ${this.playingSlokaId === s.id ? 'Chanting in progress (Tanpura resonance)...' : 'Vedic Chanting Chime'}
+                  ${this.playingSlokaId === s.id ? 'Chanting sacred Sanskrit verse with Tanpura...' : 'Chant Sanskrit Sloka'}
                 </span>
               </div>
               <div class="gk-speed-selector">
@@ -1154,6 +1479,15 @@ class GuruKripaApp {
         this.render();
       });
     });
+
+    // Chart Style Dropdown Selector (North, South, East, West)
+    const chartSelect = document.getElementById('gk-chart-style-select');
+    if (chartSelect) {
+      chartSelect.addEventListener('change', (e) => {
+        this.chartStyle = e.target.value;
+        this.render();
+      });
+    }
 
     // Date Picker
     const datePicker = document.getElementById('gk-date-picker');

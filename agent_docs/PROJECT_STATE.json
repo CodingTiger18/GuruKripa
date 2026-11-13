@@ -67,6 +67,11 @@
       "ts": "2026-11-13T20:15:00Z",
       "agent": "guru-orchestrator",
       "summary": "Fixed Planetary Longitudes undefined/empty parens bug, structured Gowri/Choghadiya day-night slots to prevent TypeError crashes, added direct SPA nav click handlers, and added 4 new rendering test suites (21/21 passing)."
+    },
+    {
+      "ts": "2026-11-13T21:49:00Z",
+      "agent": "agent-3-architect",
+      "summary": "Fixed sloka audio mismatch with authentic Sanskrit SpeechSynthesis and temple Tanpura drone; added Dvadasha Jyotirlinga Mahakshetra repository with SVG icons, Parikaras/Dosha Nivarana remedies, specific poojas, and tri-fold histories; added North (default), South, East, and West regional Rasi Kundali charts with interactive dropdown; enriched Drik Panchang depth with complete auspicious/inauspicious Muhurtas, calendar Samvatsaras, and Disha Shool (24/24 tests passing, 100%)."
     }
   ]
 }

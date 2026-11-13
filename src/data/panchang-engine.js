@@ -320,12 +320,13 @@ export function calculatePanchang(dateObj, city) {
   const weekdayIndex = dateObj.getDay();
   const vaar = VAARS[weekdayIndex];
 
-  // Muhurtas based on daylight divisions (D / 8)
+  // Muhurtas based on daylight divisions (D / 8 and D / 15)
   const dayDuration = (sunTimes.sunset - sunTimes.sunrise + 24.0) % 24.0;
   const segment = dayDuration / 8.0;
+  const muhurtaLen = dayDuration / 15.0;
 
   // Rahu Kalam order by weekday (Sunday = 0)
-  const rahuSegments = [7, 1, 6, 4, 5, 3, 2]; // 0-indexed: Sunday 8th (index 7), Monday 2nd (index 1), etc.
+  const rahuSegments = [7, 1, 6, 4, 5, 3, 2];
   const rahuStart = sunTimes.sunrise + rahuSegments[weekdayIndex] * segment;
   const rahuEnd = rahuStart + segment;
 
@@ -340,13 +341,112 @@ export function calculatePanchang(dateObj, city) {
   const gulikaEnd = gulikaStart + segment;
 
   // Abhijit Muhurta (8th Muhurta of the day, roughly 24 mins before to 24 mins after Solar Noon)
-  const muhurtaLen = dayDuration / 15.0;
   const abhijitStart = sunTimes.sunrise + 7 * muhurtaLen;
   const abhijitEnd = abhijitStart + muhurtaLen;
 
   // Brahma Muhurta (2 muhurtas before sunrise, each ~48 min)
   const brahmaStart = (sunTimes.sunrise - (96 / 60.0) + 24.0) % 24.0;
   const brahmaEnd = (sunTimes.sunrise - (48 / 60.0) + 24.0) % 24.0;
+
+  // Amrit Kaal (auspicious nectar period ~96 min based on Nakshatra)
+  const nakOffset = (nakshatraIndex * 3.65) % 16.0;
+  const amritStart = (sunTimes.sunrise + 2.0 + nakOffset) % 24.0;
+  const amritEnd = (amritStart + 1.6) % 24.0;
+
+  // Vijaya Muhurta (11th Muhurta of the day)
+  const vijayaStart = sunTimes.sunrise + 10 * muhurtaLen;
+  const vijayaEnd = vijayaStart + muhurtaLen;
+
+  // Godhuli Muhurta (24 mins before to 24 mins after sunset)
+  const godhuliStart = (sunTimes.sunset - 0.4 + 24.0) % 24.0;
+  const godhuliEnd = (sunTimes.sunset + 0.4) % 24.0;
+
+  // Dur Muhurtam (Weekday based inauspicious daytime slots)
+  const durTable = [
+    [13],        // Sun: 14th muhurta
+    [7, 11],     // Mon: 8th and 12th
+    [3, 10],     // Tue: 4th and 11th
+    [4],         // Wed: 5th
+    [5, 6],      // Thu: 6th and 7th
+    [3, 8],      // Fri: 4th and 9th
+    [0, 1]       // Sat: 1st and 2nd
+  ];
+  const durSlot = durTable[weekdayIndex];
+  const durMuhurtam = durSlot.map(s => {
+    const dStart = sunTimes.sunrise + s * muhurtaLen;
+    return `${formatTime(dStart)} – ${formatTime(dStart + muhurtaLen)}`;
+  }).join(", ");
+
+  // Varjyam (Tyajya period)
+  const varjyamOffset = (nakshatraIndex * 4.1 + 5.5) % 16.0;
+  const varjyamStart = (sunTimes.sunrise + varjyamOffset) % 24.0;
+  const varjyamEnd = (varjyamStart + 1.6) % 24.0;
+
+  // Disha Shool (Direction to avoid traveling)
+  const dishaShoolTable = [
+    { direction: "West (Pashchim)", remedy: "Consume betel leaf or cow ghee before travel" },
+    { direction: "East (Purva)", remedy: "View face in mirror or consume kheer/milk before travel" },
+    { direction: "North (Uttar)", remedy: "Consume organic jaggery (gud) before travel" },
+    { direction: "North (Uttar)", remedy: "Consume green coriander or sesame before travel" },
+    { direction: "South (Dakshin)", remedy: "Consume yellow mustard or curd before travel" },
+    { direction: "West (Pashchim)", remedy: "Consume sweet curds or barley before travel" },
+    { direction: "East (Purva)", remedy: "Consume fresh ginger or urad dal before travel" }
+  ];
+  const dishaShool = dishaShoolTable[weekdayIndex];
+
+  // Vedic Calendar Reckoning
+  const vikramSamvat = year + 57;
+  const shakaSamvat = year - 78;
+  const kaliSamvat = year + 3101;
+  const isUttarayana = (siderealSun >= 270.0 || siderealSun < 90.0);
+  const ayana = isUttarayana ? "Uttarayana (Northward Sun)" : "Dakshinayana (Southward Sun)";
+  const rituNames = ["Shishira", "Vasanta", "Vasanta", "Grishma", "Grishma", "Varsha", "Varsha", "Sharad", "Sharad", "Hemanta", "Hemanta", "Shishira"];
+  const ritu = rituNames[Math.floor(siderealSun / 30.0) % 12];
+
+  // Moonrise & Moonset approximations
+  const moonAgeHours = (tithiDiff / 360.0) * 24.0;
+  const moonrise = formatTime((sunTimes.sunrise + moonAgeHours) % 24.0);
+  const moonset = formatTime((sunTimes.sunset + moonAgeHours) % 24.0);
+
+  // Tithi and Nakshatra End Times
+  const tithiHoursLeft = ((100.0 - tithiProgress) / 100.0) * 24.0;
+  const tithiEndTime = formatTime((sunTimes.sunrise + tithiHoursLeft) % 24.0);
+  const nextTithiIdx = (tithiIndex + 1) % 30;
+  const nextTithiName = `${TITHIS[nextTithiIdx].paksha} ${TITHIS[nextTithiIdx].name}`;
+
+  const nakHoursLeft = ((100.0 - nakshatraProgress) / 100.0) * 24.0;
+  const nakshatraEndTime = formatTime((sunTimes.sunrise + nakHoursLeft) % 24.0);
+  const nextNakIdx = (nakshatraIndex + 1) % 27;
+  const nextNakshatraName = NAKSHATRAS[nextNakIdx].name;
+
+  // Real-Time Nirayana Ascendant (Lagna) Computation
+  const tYears = (jdSunrise - 2451545.0) / 36525.0;
+  const gmst0 = normalizeDeg(280.46061837 + 360.98564736629 * (jdSunrise - 2451545.0) + 0.000387933 * tYears * tYears);
+  const localSiderealTimeDeg = normalizeDeg(gmst0 + city.lon);
+  const epsRad = (23.4392911 - 0.0130042 * tYears) * DEG2RAD;
+  const latRad = city.lat * DEG2RAD;
+  const thetaRad = localSiderealTimeDeg * DEG2RAD;
+
+  const yAsc = -Math.cos(thetaRad);
+  const xAsc = Math.sin(thetaRad) * Math.cos(epsRad) + Math.tan(latRad) * Math.sin(epsRad);
+  const tropLagna = normalizeDeg(Math.atan2(yAsc, xAsc) * RAD2DEG);
+  const siderealLagna = normalizeDeg(tropLagna - ayanamsa);
+  const lagnaRashiIndex = Math.floor(siderealLagna / 30.0) + 1; // 1 to 12
+  const lagnaDegInRashi = siderealLagna % 30.0;
+  const lagnaRashi = RASHIS[(lagnaRashiIndex - 1) % 12];
+  const lagnaNakIdx = Math.floor(siderealLagna / (360.0 / 27.0)) % 27;
+  const lagnaPada = Math.floor((siderealLagna % (360.0 / 27.0)) / (360.0 / 108.0)) + 1;
+
+  const lagna = {
+    rashiIndex: lagnaRashiIndex,
+    rashi: lagnaRashi.name,
+    rashiEnglish: lagnaRashi.english,
+    deg: Math.floor(lagnaDegInRashi),
+    min: Math.floor((lagnaDegInRashi % 1) * 60),
+    formatted: `${Math.floor(lagnaDegInRashi)}° ${Math.floor((lagnaDegInRashi % 1) * 60)}' in ${lagnaRashi.name}`,
+    nakshatra: NAKSHATRAS[lagnaNakIdx].name,
+    pada: lagnaPada
+  };
 
   // Sun Rashi & Moon Rashi
   const sunRashiIndex = Math.floor(siderealSun / 30.0);
@@ -371,6 +471,7 @@ export function calculatePanchang(dateObj, city) {
     return {
       name,
       sanskrit,
+      rashiIndex: rashiIdx + 1,
       siderealLon: normLon,
       deg,
       min,
@@ -534,13 +635,32 @@ export function calculatePanchang(dateObj, city) {
     },
     sunRashi: `${sunRashi.name} (${sunRashi.english})`,
     moonRashi: `${moonRashi.name} (${moonRashi.english})`,
+    moonrise,
+    moonset,
+    lagna,
+    calendar: {
+      vikramSamvat: `${vikramSamvat} (Pingala / Krodhi)`,
+      shakaSamvat: `${shakaSamvat} (Krodhi)`,
+      kaliSamvat: `${kaliSamvat}`,
+      ayana,
+      ritu,
+      dishaShool: dishaShool.direction,
+      dishaShoolRemedy: dishaShool.remedy
+    },
     muhurtas: {
       rahuKalam: `${formatTime(rahuStart)} – ${formatTime(rahuEnd)}`,
       yamagandam: `${formatTime(yamaStart)} – ${formatTime(yamaEnd)}`,
       gulikaKalam: `${formatTime(gulikaStart)} – ${formatTime(gulikaEnd)}`,
       abhijitMuhurta: weekdayIndex === 3 ? "None (Wednesdays prohibited)" : `${formatTime(abhijitStart)} – ${formatTime(abhijitEnd)}`,
-      brahmaMuhurta: `${formatTime(brahmaStart)} – ${formatTime(brahmaEnd)}`
+      brahmaMuhurta: `${formatTime(brahmaStart)} – ${formatTime(brahmaEnd)}`,
+      amritKaal: `${formatTime(amritStart)} – ${formatTime(amritEnd)}`,
+      vijayaMuhurta: `${formatTime(vijayaStart)} – ${formatTime(vijayaEnd)}`,
+      godhuliMuhurta: `${formatTime(godhuliStart)} – ${formatTime(godhuliEnd)}`,
+      durMuhurtam,
+      varjyam: `${formatTime(varjyamStart)} – ${formatTime(varjyamEnd)}`
     },
+    tithiEndTime: `${tithiEndTime} (followed by ${nextTithiName})`,
+    nakshatraEndTime: `${nakshatraEndTime} (followed by ${nextNakshatraName})`,
     gowriPanchangam,
     choghadiya,
     planets
