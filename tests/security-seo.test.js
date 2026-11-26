@@ -84,12 +84,11 @@ test('Dynamic SEO Engine & Ethical Affiliate Compliance: OpenGraph, JSON-LD sche
 test('Cloudflare Pages + Hostinger Portability & JS Performance Optimization', () => {
   const headers = fs.readFileSync(path.resolve('public/_headers'), 'utf8');
   const htaccess = fs.readFileSync(path.resolve('public/.htaccess'), 'utf8');
-  const redirects = fs.readFileSync(path.resolve('public/_redirects'), 'utf8');
   const sw = fs.readFileSync(path.resolve('public/sw.js'), 'utf8');
   const mainJs = fs.readFileSync(path.resolve('src/main.js'), 'utf8');
 
   assert.ok(headers.includes('max-age=31536000, immutable'), 'Cloudflare _headers must cache /assets/* immutably');
-  assert.ok(redirects.includes('/index.html 200'), 'Cloudflare _redirects must provide SPA fallback');
+  assert.ok(!fs.existsSync(path.resolve('public/404.html')), 'Omit 404.html so Cloudflare Pages uses native SPA fallback without _redirects loop');
   assert.ok(htaccess.includes('mod_brotli') && htaccess.includes('mod_deflate'), 'Hostinger .htaccess must enable Brotli & Gzip');
   assert.ok(htaccess.includes('max-age=31536000, immutable'), 'Hostinger .htaccess must cache immutable assets');
   assert.ok(sw.includes("url.pathname.startsWith('/assets/')"), 'Service Worker must use Cache-First for hashed assets');
