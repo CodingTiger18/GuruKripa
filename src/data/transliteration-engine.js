@@ -195,9 +195,13 @@ function transcodeToIAST(text) {
   return output;
 }
 
+const TRANSLIT_CACHE = new Map();
+const MAX_TRANSLIT_CACHE = 1500;
+
 /**
  * Main Transliteration Dispatcher:
  * Converts input text from Devanagari to target language code.
+ * Memoized for sub-millisecond tab and language switching.
  * @param {string} text - Sanskrit text in Unicode Devanagari
  * @param {string} targetLangCode - 2-letter ISO code or 'en'
  * @param {boolean} [cleanDevanagari=true] - Clean Vedic swaras to avoid tofu boxes
@@ -205,28 +209,37 @@ function transcodeToIAST(text) {
 export function transliterate(text, targetLangCode, cleanDevanagari = true) {
   if (!text) return "";
 
+  const cacheKey = `${targetLangCode}:${cleanDevanagari ? 1 : 0}:${text}`;
+  const cached = TRANSLIT_CACHE.get(cacheKey);
+  if (cached !== undefined) return cached;
+
+  let result;
   if (targetLangCode === "sa" || targetLangCode === "hi" || targetLangCode === "mr") {
-    return cleanDevanagari ? cleanVedicAccents(text) : text;
+    result = cleanDevanagari ? cleanVedicAccents(text) : text;
+  } else if (targetLangCode === "en") {
+    result = transcodeToIAST(text);
+  } else {
+    const offsets = {
+      "bn": 0x0080,
+      "gu": 0x0180,
+      "or": 0x0200,
+      "ta": 0x0280,
+      "te": 0x0300,
+      "kn": 0x0380,
+      "ml": 0x0400
+    };
+
+    const offset = offsets[targetLangCode];
+    if (offset !== undefined) {
+      result = transcodeIndicBlock(text, offset, targetLangCode);
+    } else {
+      result = cleanDevanagari ? cleanVedicAccents(text) : text;
+    }
   }
 
-  if (targetLangCode === "en") {
-    return transcodeToIAST(text);
+  if (TRANSLIT_CACHE.size >= MAX_TRANSLIT_CACHE) {
+    TRANSLIT_CACHE.clear();
   }
-
-  const offsets = {
-    "bn": 0x0080,
-    "gu": 0x0180,
-    "or": 0x0200,
-    "ta": 0x0280,
-    "te": 0x0300,
-    "kn": 0x0380,
-    "ml": 0x0400
-  };
-
-  const offset = offsets[targetLangCode];
-  if (offset !== undefined) {
-    return transcodeIndicBlock(text, offset, targetLangCode);
-  }
-
-  return cleanDevanagari ? cleanVedicAccents(text) : text;
+  TRANSLIT_CACHE.set(cacheKey, result);
+  return result;
 }

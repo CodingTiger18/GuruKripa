@@ -1,21 +1,25 @@
 # ====================================================================
 # Hostinger LiteSpeed / Apache Web Server Configuration (.htaccess)
-# Place this file directly inside your Hostinger 'public_html' directory.
+# Portable for Indian & Global Shared/VPS Hosting (Ignored by Cloudflare Pages)
 # ====================================================================
 
 RewriteEngine On
 RewriteBase /
 
-# 1. Force Secure HTTPS
+# 1. Force Secure HTTPS (works behind proxy/Cloudflare Flexible or Full SSL too)
 RewriteCond %{HTTPS} off
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# 2. Enable GZIP & Brotli Compression for Lightning Speed (<0.5s loads)
+# 2. Enable Brotli & GZIP Compression for Lightning Speed (<0.5s loads)
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/plain text/xml text/css application/javascript application/json image/svg+xml application/manifest+json
+</IfModule>
 <IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript application/json
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript application/json image/svg+xml application/manifest+json
 </IfModule>
 
-# 3. High-Performance Browser Caching
+# 3. High-Performance Browser & Edge Caching
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresByType image/jpg "access plus 1 year"
@@ -23,20 +27,31 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
   ExpiresByType image/png "access plus 1 year"
   ExpiresByType image/svg+xml "access plus 1 year"
   ExpiresByType image/webp "access plus 1 year"
-  ExpiresByType text/css "access plus 1 month"
-  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
   ExpiresByType font/woff2 "access plus 1 year"
 </IfModule>
 
-# 4. Single-Page Application (SPA) Routing Fallback
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /index.html [L]
-
-# 5. Hardened Security Headers
 <IfModule mod_headers.c>
+  # Immutable cache for hashed Vite chunks
+  <FilesMatch "\.(js|css|svg|png|webp|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  # Always revalidate HTML & Service Worker for glitch-free deployments
+  <FilesMatch "^(index\.html|sw\.js)$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+
+  # 4. Hardened Security Headers (mirrors Cloudflare _headers)
   Header set X-Content-Type-Options "nosniff"
   Header set X-Frame-Options "DENY"
   Header set X-XSS-Protection "1; mode=block"
   Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header set Permissions-Policy "camera=(), microphone=(), payment=(), usb=(), interest-cohort=()"
 </IfModule>
+
+# 5. Single-Page Application (SPA) Routing Fallback
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]

@@ -81,6 +81,23 @@ test('Dynamic SEO Engine & Ethical Affiliate Compliance: OpenGraph, JSON-LD sche
   assert.ok(mainJs.includes('rel="sponsored nofollow noopener"'), 'All affiliate links must use rel="sponsored nofollow noopener"');
 });
 
+test('Cloudflare Pages + Hostinger Portability & JS Performance Optimization', () => {
+  const headers = fs.readFileSync(path.resolve('public/_headers'), 'utf8');
+  const htaccess = fs.readFileSync(path.resolve('public/.htaccess'), 'utf8');
+  const redirects = fs.readFileSync(path.resolve('public/_redirects'), 'utf8');
+  const sw = fs.readFileSync(path.resolve('public/sw.js'), 'utf8');
+  const mainJs = fs.readFileSync(path.resolve('src/main.js'), 'utf8');
+
+  assert.ok(headers.includes('max-age=31536000, immutable'), 'Cloudflare _headers must cache /assets/* immutably');
+  assert.ok(redirects.includes('/index.html 200'), 'Cloudflare _redirects must provide SPA fallback');
+  assert.ok(htaccess.includes('mod_brotli') && htaccess.includes('mod_deflate'), 'Hostinger .htaccess must enable Brotli & Gzip');
+  assert.ok(htaccess.includes('max-age=31536000, immutable'), 'Hostinger .htaccess must cache immutable assets');
+  assert.ok(sw.includes("url.pathname.startsWith('/assets/')"), 'Service Worker must use Cache-First for hashed assets');
+  assert.ok(mainJs.includes('getOrigin()'), 'main.js must use host-agnostic getOrigin() for zero-effort migration');
+  assert.ok(mainJs.includes('prefetchSecondaryModules()'), 'main.js must code-split and idle-prefetch secondary chunks');
+  assert.ok(mainJs.includes('renderPanchangSubTabOnly()'), 'main.js must perform surgical sub-tab updates without full-page flicker');
+});
+
 test('Zero exposed secrets and zero private keys in codebase', () => {
   const checkFiles = [
     'src/data/panchang-engine.js',

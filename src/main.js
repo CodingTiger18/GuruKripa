@@ -1,33 +1,37 @@
 /**
  * GuruKripa — Main Application Controller & Dynamic Hydration Engine
- * Zero-Cost, 100% Client-Side Architecture
+ * Zero-Cost, 100% Client-Side, Host-Agnostic (Cloudflare Pages / Hostinger / Indian CDN)
  */
 
-import CITIES from './data/cities.json';
 import { calculatePanchang } from './data/panchang-engine.js';
 import { SUPPORTED_LANGUAGES, transliterate } from './data/transliteration-engine.js';
-import { SLOKAS_DATA, DEITY_HUBS } from './data/slokas-data.js';
-import { JYOTIRLINGAS } from './data/jyotirlinga-data.js';
-import { STORIES_DATA } from './data/stories-data.js';
-import { JapaMalaEngine } from './data/japa-engine.js';
-import { 
-  buildChartData, 
-  renderNorthIndianChart, 
-  renderSouthIndianChart, 
-  renderEastIndianChart, 
-  renderWestIndianChart 
-} from './data/chart-engine.js';
-import { 
-  drawDeityPostcardCanvas, 
-  getDailyDeityInfo, 
-  POSTER_ASPECT_RATIOS, 
-  POSTER_THEMES 
-} from './data/deity-poster-engine.js';
+
+const DEFAULT_CITY = {
+  id: 'new-delhi-in',
+  name: 'New Delhi',
+  state: 'Delhi',
+  country: 'India',
+  lat: 28.6139,
+  lon: 77.2090,
+  tz: 'Asia/Kolkata',
+  tz_offset: 5.5,
+  elevation_m: 216
+};
+
+const REGIONAL_FONT_MAP = {
+  ta: 'Noto+Sans+Tamil:wght@400;600;700',
+  te: 'Noto+Sans+Telugu:wght@400;600;700',
+  kn: 'Noto+Sans+Kannada:wght@400;600;700',
+  ml: 'Noto+Sans+Malayalam:wght@400;600;700',
+  bn: 'Noto+Sans+Bengali:wght@400;600;700',
+  gu: 'Noto+Sans+Gujarati:wght@400;600;700',
+  or: 'Noto+Sans+Oriya:wght@400;600;700'
+};
 
 class GuruKripaApp {
   constructor() {
-    this.cities = CITIES;
-    this.selectedCity = this.loadSavedCity() || this.cities[0]; // Default New Delhi
+    this.cities = [DEFAULT_CITY];
+    this.selectedCity = this.loadSavedCity() || DEFAULT_CITY;
     this.selectedDate = new Date();
     this.selectedLang = localStorage.getItem('gk_lang') || 'sa';
     this.currentView = this.getViewFromHash();
@@ -37,7 +41,13 @@ class GuruKripaApp {
     this.showSabdartha = true;
     this.cityModalOpen = false;
     this.theme = localStorage.getItem('gk_theme') || 'light';
-    this.japaEngine = new JapaMalaEngine();
+
+    // On-demand module & computation caches for 0ms switching
+    this._modCache = {};
+    this._panchangCache = new Map();
+    this._loadedFonts = new Set();
+    this._renderSeq = 0;
+    this.japaEngine = null;
 
     // Daily Panchang Deity Postcard State
     this.deityPosterModalOpen = false;
@@ -59,6 +69,102 @@ class GuruKripaApp {
     this.cardTheme = 'saffron'; // 'saffron' | 'maroon' | 'sandal' | 'indigo'
 
     this.init();
+  }
+
+  getOrigin() {
+    if (typeof window !== 'undefined' && window.location && window.location.origin && !window.location.origin.startsWith('file:')) {
+      return window.location.origin;
+    }
+    return 'https://gurukripa.pages.dev';
+  }
+
+  ensureRegionalFont(lang) {
+    const family = REGIONAL_FONT_MAP[lang];
+    if (!family || this._loadedFonts.has(lang) || typeof document === 'undefined') return;
+    this._loadedFonts.add(lang);
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = `https://fonts.googleapis.com/css2?family=${family}&display=swap`;
+    document.head.appendChild(link);
+  }
+
+  async _loadModule(key, importer) {
+    if (!this._modCache[key]) {
+      this._modCache[key] = importer().catch((err) => {
+        delete this._modCache[key];
+        throw err;
+      });
+    }
+    return this._modCache[key];
+  }
+
+  loadCities() {
+    return this._loadModule('cities', () => import('./data/cities.json')).then((m) => {
+      this.cities = m.default || m;
+      return this.cities;
+    });
+  }
+
+  loadChartEngine() {
+    return this._loadModule('chart', () => import('./data/chart-engine.js'));
+  }
+
+  loadJyotirlingas() {
+    return this._loadModule('jyotirlingas', () => import('./data/jyotirlinga-data.js'));
+  }
+
+  loadSlokas() {
+    return this._loadModule('slokas', () => import('./data/slokas-data.js'));
+  }
+
+  loadStories() {
+    return this._loadModule('stories', () => import('./data/stories-data.js'));
+  }
+
+  loadDeityPoster() {
+    return this._loadModule('poster', () => import('./data/deity-poster-engine.js')).then((m) => {
+      this._resolvedPosterMod = m;
+      return m;
+    });
+  }
+
+  async ensureJapaEngine() {
+    if (!this.japaEngine) {
+      const { JapaMalaEngine } = await this._loadModule('japa', () => import('./data/japa-engine.js'));
+      this.japaEngine = new JapaMalaEngine();
+    }
+    return this.japaEngine;
+  }
+
+  prefetchSecondaryModules() {
+    const runPrefetch = () => {
+      this.loadSlokas().catch(() => {});
+      this.loadJyotirlingas().catch(() => {});
+      this.loadChartEngine().catch(() => {});
+      this.loadStories().catch(() => {});
+      this.ensureJapaEngine().catch(() => {});
+      this.loadDeityPoster().catch(() => {});
+      this.loadCities().catch(() => {});
+    };
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      window.requestIdleCallback(runPrefetch, { timeout: 2000 });
+    } else {
+      setTimeout(runPrefetch, 600);
+    }
+  }
+
+  getPanchangData() {
+    const d = this.selectedDate instanceof Date ? this.selectedDate : new Date(this.selectedDate);
+    const dateKey = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    const c = this.selectedCity;
+    const key = `${dateKey}:${c.id || c.name}:${c.lat}:${c.lon}`;
+    let cached = this._panchangCache.get(key);
+    if (!cached) {
+      if (this._panchangCache.size > 32) this._panchangCache.clear();
+      cached = calculatePanchang(d, c);
+      this._panchangCache.set(key, cached);
+    }
+    return cached;
   }
 
   loadSavedCity() {
@@ -88,10 +194,14 @@ class GuruKripaApp {
   init() {
     document.documentElement.setAttribute('data-theme', this.theme);
     document.documentElement.setAttribute('data-lang', this.selectedLang);
+    this.ensureRegionalFont(this.selectedLang);
 
     window.addEventListener('hashchange', () => {
-      this.currentView = this.getViewFromHash();
-      this.render();
+      const nextView = this.getViewFromHash();
+      if (nextView !== this.currentView) {
+        this.currentView = nextView;
+        this.renderViewOnly();
+      }
     });
 
     window.addEventListener('keydown', (e) => {
@@ -108,14 +218,19 @@ class GuruKripaApp {
       });
     }
 
+    this.mountShell();
     this.render();
+    this.prefetchSecondaryModules();
   }
 
   toggleTheme() {
     this.theme = this.theme === 'light' ? 'dark' : 'light';
     localStorage.setItem('gk_theme', this.theme);
     document.documentElement.setAttribute('data-theme', this.theme);
-    this.render();
+    const themeBtn = document.getElementById('gk-theme-btn');
+    if (themeBtn) {
+      themeBtn.innerHTML = this.theme === 'light' ? '🌙 Dark' : '☀️ Light';
+    }
   }
 
   handleJapaClick() {
@@ -165,12 +280,17 @@ class GuruKripaApp {
     );
   }
 
-  playChantSound(slokaId) {
+  async playChantSound(slokaId) {
     if (this.playingSlokaId === slokaId) {
       this.stopChantSound();
       return;
     }
     this.stopChantSound();
+
+    const [{ SLOKAS_DATA }, { JYOTIRLINGAS }] = await Promise.all([
+      this.loadSlokas(),
+      this.loadJyotirlingas()
+    ]);
 
     let targetItem = SLOKAS_DATA.find(x => x.id === slokaId);
     if (!targetItem) {
@@ -179,7 +299,12 @@ class GuruKripaApp {
     if (!targetItem) return;
 
     this.playingSlokaId = slokaId;
-    this.render();
+    document.querySelectorAll('.gk-audio-play-btn').forEach(btn => {
+      const id = btn.getAttribute('data-play-id');
+      btn.innerHTML = id === slokaId
+        ? (btn.textContent.includes('Chant') ? '⏸ Pause Chant' : '⏸')
+        : (btn.textContent.includes('Pause') || btn.textContent.includes('Chant') ? '▶ Chant Verse' : '▶');
+    });
 
     // 1. Genuine Sanskrit Speech Synthesis (Chanting the exact sloka text)
     const rawText = targetItem.devanagari || targetItem.stotramVerse || targetItem.sanskritName || "";
@@ -282,17 +407,18 @@ class GuruKripaApp {
     });
   }
 
-  openCardMaker(slokaId) {
+  async openCardMaker(slokaId) {
+    const { SLOKAS_DATA } = await this.loadSlokas();
     const s = SLOKAS_DATA.find(x => x.id === slokaId);
     if (!s) return;
     this.activeCardSloka = s;
-    this.render();
-    setTimeout(() => this.drawShareCanvas(), 50);
+    this.renderModalOnly();
+    requestAnimationFrame(() => this.drawShareCanvas());
   }
 
   closeCardMaker() {
     this.activeCardSloka = null;
-    this.render();
+    this.renderModalOnly();
   }
 
   drawShareCanvas() {
@@ -407,7 +533,7 @@ class GuruKripaApp {
     // Bottom Watermark & Verification
     ctx.fillStyle = '#FFE082';
     ctx.font = '600 28px "Cinzel", Georgia, serif';
-    ctx.fillText('gurukripa.pages.dev • 100% Client-Side Vedic Wisdom', 540, 1800);
+    ctx.fillText(`${this.getOrigin().replace(/^https?:\/\//, '')} • 100% Client-Side Vedic Wisdom`, 540, 1800);
   }
 
   downloadCardImage() {
@@ -425,34 +551,110 @@ class GuruKripaApp {
     if (!canvas || !this.activeCardSloka) return;
     const s = this.activeCardSloka;
     const text = encodeURIComponent(
-      `🕉️ *${s.title}* (${s.deity})\n\n"${transliterate(s.devanagari, this.selectedLang)}"\n\n*Meaning:* ${s.translation}\n\nChant daily on GuruKripa: https://gurukripa.pages.dev/#stotras`
+      `🕉️ *${s.title}* (${s.deity})\n\n"${transliterate(s.devanagari, this.selectedLang)}"\n\n*Meaning:* ${s.translation}\n\nChant daily on GuruKripa: ${this.getOrigin()}/#stotras`
     );
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
   }
 
-  render() {
+  mountShell() {
     const app = document.getElementById('app');
     if (!app) return;
 
     const hideStickyAd = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('gk_hide_sticky_ad') === 'true';
 
     app.innerHTML = `
-      ${this.renderHeader()}
+      <div id="gk-header-root">${this.renderHeader()}</div>
       <main class="gk-main">
-        ${this.renderNavSubbar()}
+        <div id="gk-nav-root">${this.renderNavSubbar()}</div>
         ${this.renderAdSlot('ad-header-leaderboard', 'leaderboard')}
-        ${this.renderView()}
+        <div id="gk-view-root"></div>
       </main>
       ${this.renderFooter()}
-      ${this.cityModalOpen ? this.renderCityModal() : ''}
-      ${this.activeCardSloka ? this.renderCardMakerModal() : ''}
-      ${this.deityPosterModalOpen ? this.renderDeityPosterModal() : ''}
+      <div id="gk-modal-root"></div>
       ${!hideStickyAd ? this.renderAdSlot('ad-footer-anchor', 'sticky-footer') : ''}
       ${this.renderConsentBanner()}
     `;
 
-    this.bindEvents();
+    this.bindShellEvents();
+  }
+
+  render() {
+    const headerRoot = document.getElementById('gk-header-root');
+    const navRoot = document.getElementById('gk-nav-root');
+    if (!headerRoot || !navRoot) {
+      this.mountShell();
+    } else {
+      headerRoot.innerHTML = this.renderHeader();
+      navRoot.innerHTML = this.renderNavSubbar();
+      this.bindHeaderNavEvents();
+    }
+    this.renderViewOnly();
+    this.renderModalOnly();
+  }
+
+  async renderViewOnly() {
+    const viewRoot = document.getElementById('gk-view-root');
+    if (!viewRoot) return;
+
+    const seq = ++this._renderSeq;
+    document.querySelectorAll('.gk-nav-links a').forEach(link => {
+      const target = (link.getAttribute('href') || '').replace('#', '');
+      link.classList.toggle('active', target === this.currentView);
+    });
+
+    const html = await this.renderView();
+    if (seq !== this._renderSeq) return; // Discard stale async render if user switched fast
+
+    viewRoot.innerHTML = html;
+    this.bindViewEvents();
     this.updateSEO();
+    this.pushAdSenseSlots(viewRoot);
+  }
+
+  async renderPanchangSubTabOnly() {
+    const container = document.getElementById('gk-panchang-tab-content');
+    if (!container) {
+      return this.renderViewOnly();
+    }
+    const seq = ++this._renderSeq;
+    document.querySelectorAll('.gk-tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-tab') === this.panchangTab);
+    });
+
+    const data = this.getPanchangData();
+    const html = await this.renderPanchangSubTabHtml(data);
+    if (seq !== this._renderSeq) return;
+    container.innerHTML = html;
+    this.bindViewEvents();
+  }
+
+  async renderModalOnly() {
+    const modalRoot = document.getElementById('gk-modal-root');
+    if (!modalRoot) return;
+    let html = '';
+    if (this.cityModalOpen) {
+      await this.loadCities();
+      html += this.renderCityModal();
+    }
+    if (this.activeCardSloka) {
+      html += this.renderCardMakerModal();
+    }
+    if (this.deityPosterModalOpen) {
+      await this.loadDeityPoster();
+      html += this.renderDeityPosterModal();
+    }
+    modalRoot.innerHTML = html;
+    this.bindModalEvents();
+  }
+
+  pushAdSenseSlots(scope = document) {
+    try {
+      if (typeof window !== 'undefined' && window.adsbygoogle) {
+        scope.querySelectorAll('ins.adsbygoogle:not([data-adsbygoogle-status])').forEach(() => {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+        });
+      }
+    } catch (e) {}
   }
 
   renderHeader() {
@@ -517,7 +719,7 @@ class GuruKripaApp {
     `;
   }
 
-  renderView() {
+  async renderView() {
     switch (this.currentView) {
       case 'panchang': return this.renderPanchang();
       case 'jyotirlingas': return this.renderJyotirlingas();
@@ -528,8 +730,17 @@ class GuruKripaApp {
     }
   }
 
-  renderPanchang() {
-    const data = calculatePanchang(this.selectedDate, this.selectedCity);
+  async renderPanchangSubTabHtml(data) {
+    if (this.panchangTab === 'kundali') return this.renderPanchangKundali(data);
+    if (this.panchangTab === 'gowri') return this.renderGowriTable(data.gowriPanchangam);
+    if (this.panchangTab === 'choghadiya') return this.renderChoghadiyaTable(data.choghadiya);
+    if (this.panchangTab === 'planets') return this.renderPlanetsTable(data.planets, data.ayanamsa);
+    return this.renderPanchangOverview(data);
+  }
+
+  async renderPanchang() {
+    const data = this.getPanchangData();
+    const tabHtml = await this.renderPanchangSubTabHtml(data);
 
     return `
       <section>
@@ -580,18 +791,21 @@ class GuruKripaApp {
           <button class="gk-tab-btn ${this.panchangTab === 'planets' ? 'active' : ''}" data-tab="planets">Planetary Longitudes</button>
         </div>
 
-        ${this.panchangTab === 'overview' ? this.renderPanchangOverview(data) : ''}
-        ${this.panchangTab === 'kundali' ? this.renderPanchangKundali(data) : ''}
-        ${this.panchangTab === 'gowri' ? this.renderGowriTable(data.gowriPanchangam) : ''}
-        ${this.panchangTab === 'choghadiya' ? this.renderChoghadiyaTable(data.choghadiya) : ''}
-        ${this.panchangTab === 'planets' ? this.renderPlanetsTable(data.planets, data.ayanamsa) : ''}
+        <div id="gk-panchang-tab-content">${tabHtml}</div>
 
         ${this.renderAdSlot('ad-panchang-inline', 'rectangle')}
       </section>
     `;
   }
 
-  renderPanchangKundali(data) {
+  async renderPanchangKundali(data) {
+    const {
+      buildChartData,
+      renderNorthIndianChart,
+      renderSouthIndianChart,
+      renderEastIndianChart,
+      renderWestIndianChart
+    } = await this.loadChartEngine();
     const chartData = buildChartData(data.lagna.rashiIndex, data.lagna.deg, data.planets);
     let chartSvg = '';
     if (this.chartStyle === 'south') {
@@ -960,7 +1174,8 @@ class GuruKripaApp {
     `;
   }
 
-  renderJyotirlingas() {
+  async renderJyotirlingas() {
+    const { JYOTIRLINGAS } = await this.loadJyotirlingas();
     return `
       <section>
         <div class="gk-jyotir-header-banner">
@@ -1067,7 +1282,8 @@ class GuruKripaApp {
     `;
   }
 
-  renderStotras() {
+  async renderStotras() {
+    const { SLOKAS_DATA, DEITY_HUBS } = await this.loadSlokas();
     // Filtered by deity and category
     const filteredSlokas = SLOKAS_DATA.filter(s => {
       const matchDeity = this.selectedDeity === 'all' || s.deityId === this.selectedDeity;
@@ -1198,7 +1414,8 @@ class GuruKripaApp {
     `;
   }
 
-  renderJapa() {
+  async renderJapa() {
+    await this.ensureJapaEngine();
     return `
       <section>
         <div class="gk-japa-container">
@@ -1263,7 +1480,8 @@ class GuruKripaApp {
     `;
   }
 
-  renderStories() {
+  async renderStories() {
+    const { STORIES_DATA } = await this.loadStories();
     return `
       <section>
         <div style="margin-bottom:24px;">
@@ -1405,21 +1623,22 @@ class GuruKripaApp {
     `;
   }
 
-  openDeityPoster() {
+  async openDeityPoster() {
     this.deityPosterModalOpen = true;
-    this.render();
-    setTimeout(() => this.drawDeityPoster(), 50);
+    await this.renderModalOnly();
+    requestAnimationFrame(() => this.drawDeityPoster());
   }
 
   closeDeityPoster() {
     this.deityPosterModalOpen = false;
-    this.render();
+    this.renderModalOnly();
   }
 
-  drawDeityPoster() {
+  async drawDeityPoster() {
     const canvas = document.getElementById('gk-deity-poster-canvas');
     if (!canvas) return;
-    const data = calculatePanchang(this.selectedDate, this.selectedCity);
+    const { drawDeityPostcardCanvas } = await this.loadDeityPoster();
+    const data = this.getPanchangData();
     drawDeityPostcardCanvas(canvas, data, {
       aspectRatio: this.posterAspectRatio,
       theme: this.posterTheme,
@@ -1439,11 +1658,12 @@ class GuruKripaApp {
   async shareDeityPosterNative() {
     const canvas = document.getElementById('gk-deity-poster-canvas');
     if (!canvas) return;
-    const data = calculatePanchang(this.selectedDate, this.selectedCity);
+    const { getDailyDeityInfo } = await this.loadDeityPoster();
+    const data = this.getPanchangData();
     const deity = getDailyDeityInfo(data);
 
     const shareTitle = `${deity ? deity.festival : 'Daily Panchang'} • GuruKripa`;
-    const shareText = `${deity ? deity.deityName + ' — ' + deity.quote : 'Daily Vedic Panchang'}\n\n📍 ${data.city} • Tithi: ${data.tithi.name} • Nakshatra: ${data.nakshatra.name}\n\nLive Panchang: https://gurukripa.pages.dev`;
+    const shareText = `${deity ? deity.deityName + ' — ' + deity.quote : 'Daily Vedic Panchang'}\n\n📍 ${data.city} • Tithi: ${data.tithi.name} • Nakshatra: ${data.nakshatra.name}\n\nLive Panchang: ${this.getOrigin()}`;
 
     canvas.toBlob(async (blob) => {
       if (!blob) return;
@@ -1484,8 +1704,9 @@ class GuruKripaApp {
     }
   }
 
-  shareDeityPosterX() {
-    const data = calculatePanchang(this.selectedDate, this.selectedCity);
+  async shareDeityPosterX() {
+    const { getDailyDeityInfo } = await this.loadDeityPoster();
+    const data = this.getPanchangData();
     const deity = getDailyDeityInfo(data);
     const tweetText = encodeURIComponent(
       `🕉️ ${deity ? deity.festival : 'Daily Panchang'}\n` +
@@ -1493,14 +1714,18 @@ class GuruKripaApp {
       `📍 ${data.city} • Tithi: ${data.tithi.name} • Nakshatra: ${data.nakshatra.name}\n\n` +
       `"${deity ? deity.quote : ''}"\n\n` +
       `#Panchang #HinduCalendar #${deity ? deity.theme : 'Bhakti'} #GuruKripa\n` +
-      `https://gurukripa.pages.dev`
+      `${this.getOrigin()}`
     );
     window.open(`https://twitter.com/intent/tweet?text=${tweetText}`, '_blank');
   }
 
   renderDeityPosterModal() {
-    const data = calculatePanchang(this.selectedDate, this.selectedCity);
-    const deity = getDailyDeityInfo(data);
+    const data = this.getPanchangData();
+    // Synchronous access after loadDeityPoster() awaited in renderModalOnly
+    const { getDailyDeityInfo, POSTER_ASPECT_RATIOS, POSTER_THEMES } = this._resolvedPosterMod || {};
+    const deity = getDailyDeityInfo ? getDailyDeityInfo(data) : null;
+    const ratios = POSTER_ASPECT_RATIOS || [];
+    const themes = POSTER_THEMES || {};
 
     return `
       <div class="gk-modal-backdrop" id="gk-deity-poster-backdrop">
@@ -1521,7 +1746,7 @@ class GuruKripaApp {
           <div style="margin-top:10px;">
             <label style="font-size:0.8rem; font-weight:800; text-transform:uppercase; color:var(--color-secondary); letter-spacing:0.04em;">1. Target Social Format:</label>
             <div class="gk-aspect-pills">
-              ${POSTER_ASPECT_RATIOS.map(ar => `
+              ${ratios.map(ar => `
                 <button class="gk-aspect-pill ${this.posterAspectRatio === ar.id ? 'active' : ''}" data-aspect="${ar.id}">
                   ${ar.name}
                 </button>
@@ -1533,7 +1758,7 @@ class GuruKripaApp {
           <div>
             <label style="font-size:0.8rem; font-weight:800; text-transform:uppercase; color:var(--color-secondary); letter-spacing:0.04em;">2. Sacred Devotional Theme:</label>
             <div class="gk-theme-pills">
-              ${Object.values(POSTER_THEMES).map(th => `
+              ${Object.values(themes).map(th => `
                 <button class="gk-theme-pill ${this.posterTheme === th.id ? 'active' : ''}" data-theme="${th.id}">
                   ${th.name}
                 </button>
@@ -1782,7 +2007,35 @@ class GuruKripaApp {
     `;
   }
 
-  bindEvents() {
+  bindShellEvents() {
+    this.bindHeaderNavEvents();
+
+    // Consent Accept
+    const consentAccept = document.getElementById('gk-consent-accept');
+    if (consentAccept) {
+      consentAccept.addEventListener('click', () => {
+        localStorage.setItem('gk_consent', 'accepted');
+        const banner = document.getElementById('gk-consent-banner');
+        if (banner) banner.remove();
+      });
+    }
+
+    // Sticky Footer Ad Dismissal
+    const stickyClose = document.getElementById('gk-close-ad-footer-anchor');
+    if (stickyClose) {
+      stickyClose.addEventListener('click', () => {
+        if (typeof sessionStorage !== 'undefined') {
+          sessionStorage.setItem('gk_hide_sticky_ad', 'true');
+        }
+        const stickyAd = document.getElementById('ad-footer-anchor');
+        if (stickyAd) stickyAd.remove();
+      });
+    }
+
+    this.pushAdSenseSlots(document);
+  }
+
+  bindHeaderNavEvents() {
     // Language Switcher
     const langSelect = document.getElementById('gk-lang-select');
     if (langSelect) {
@@ -1790,7 +2043,8 @@ class GuruKripaApp {
         this.selectedLang = e.target.value;
         localStorage.setItem('gk_lang', this.selectedLang);
         document.documentElement.setAttribute('data-lang', this.selectedLang);
-        this.render();
+        this.ensureRegionalFont(this.selectedLang);
+        this.renderViewOnly();
       });
     }
 
@@ -1799,7 +2053,7 @@ class GuruKripaApp {
     if (cityBtn) {
       cityBtn.addEventListener('click', () => {
         this.cityModalOpen = true;
-        this.render();
+        this.renderModalOnly();
       });
     }
 
@@ -1815,7 +2069,7 @@ class GuruKripaApp {
       themeBtn.addEventListener('click', () => this.toggleTheme());
     }
 
-    // Navigation Links (Direct SPA Switching)
+    // Navigation Links (Direct SPA Switching with Zero Full-Page Flicker)
     document.querySelectorAll('.gk-nav-links a').forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
@@ -1823,18 +2077,22 @@ class GuruKripaApp {
         if (href && href.startsWith('#')) {
           const target = href.replace('#', '');
           this.currentView = target;
-          window.location.hash = target;
-          this.render();
+          if (window.location.hash !== `#${target}`) {
+            history.pushState(null, '', `#${target}`);
+          }
+          this.renderViewOnly();
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }
       });
     });
+  }
 
-    // Panchang Tabs
+  bindViewEvents() {
+    // Panchang Sub-Tabs (Surgical Sub-Container Swap)
     document.querySelectorAll('.gk-tab-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('click', () => {
         this.panchangTab = btn.getAttribute('data-tab');
-        this.render();
+        this.renderPanchangSubTabOnly();
       });
     });
 
@@ -1843,7 +2101,7 @@ class GuruKripaApp {
     if (chartSelect) {
       chartSelect.addEventListener('change', (e) => {
         this.chartStyle = e.target.value;
-        this.render();
+        this.renderPanchangSubTabOnly();
       });
     }
 
@@ -1852,7 +2110,7 @@ class GuruKripaApp {
     if (datePicker) {
       datePicker.addEventListener('change', (e) => {
         this.selectedDate = new Date(e.target.value);
-        this.render();
+        this.renderViewOnly();
       });
     }
 
@@ -1860,7 +2118,7 @@ class GuruKripaApp {
     document.querySelectorAll('.gk-deity-card-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         this.selectedDeity = chip.getAttribute('data-deity-id');
-        this.render();
+        this.renderViewOnly();
       });
     });
 
@@ -1868,7 +2126,7 @@ class GuruKripaApp {
     document.querySelectorAll('.gk-cat-pill').forEach(pill => {
       pill.addEventListener('click', () => {
         this.selectedCategory = pill.getAttribute('data-category');
-        this.render();
+        this.renderViewOnly();
       });
     });
 
@@ -1877,7 +2135,7 @@ class GuruKripaApp {
       resetFilterBtn.addEventListener('click', () => {
         this.selectedDeity = 'all';
         this.selectedCategory = 'all';
-        this.render();
+        this.renderViewOnly();
       });
     }
 
@@ -1893,7 +2151,9 @@ class GuruKripaApp {
     document.querySelectorAll('.gk-speed-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         this.chantSpeed = parseFloat(btn.getAttribute('data-speed'));
-        this.render();
+        document.querySelectorAll('.gk-speed-btn').forEach(b => {
+          b.classList.toggle('active', parseFloat(b.getAttribute('data-speed')) === this.chantSpeed);
+        });
       });
     });
 
@@ -1905,6 +2165,111 @@ class GuruKripaApp {
       });
     });
 
+    // Deity Postcard Generator Trigger
+    const openPosterBtn = document.getElementById('gk-open-deity-poster');
+    if (openPosterBtn) {
+      openPosterBtn.addEventListener('click', () => this.openDeityPoster());
+    }
+
+    // Sloka Font Controls & Sabdartha Toggle
+    const fontInc = document.getElementById('gk-font-inc');
+    if (fontInc) {
+      fontInc.addEventListener('click', () => {
+        this.slokaFontSize = Math.min(this.slokaFontSize + 0.15, 2.2);
+        this.renderViewOnly();
+      });
+    }
+    const fontDec = document.getElementById('gk-font-dec');
+    if (fontDec) {
+      fontDec.addEventListener('click', () => {
+        this.slokaFontSize = Math.max(this.slokaFontSize - 0.15, 0.9);
+        this.renderViewOnly();
+      });
+    }
+    const sabdarthaToggle = document.getElementById('gk-toggle-sabdartha');
+    if (sabdarthaToggle) {
+      sabdarthaToggle.addEventListener('click', () => {
+        this.showSabdartha = !this.showSabdartha;
+        this.renderViewOnly();
+      });
+    }
+
+    // Japa Counter Trigger
+    const japaCircle = document.getElementById('gk-japa-trigger');
+    if (japaCircle) {
+      japaCircle.addEventListener('click', () => this.handleJapaClick());
+    }
+    const japaSoundToggle = document.getElementById('gk-japa-sound-toggle');
+    if (japaSoundToggle) {
+      japaSoundToggle.addEventListener('click', () => {
+        this.japaEngine.soundEnabled = !this.japaEngine.soundEnabled;
+        this.japaEngine.saveState();
+        japaSoundToggle.innerHTML = this.japaEngine.soundEnabled ? '🔔 Sound: ON' : '🔕 Sound: OFF';
+      });
+    }
+    const japaVibToggle = document.getElementById('gk-japa-vib-toggle');
+    if (japaVibToggle) {
+      japaVibToggle.addEventListener('click', () => {
+        this.japaEngine.vibrationEnabled = !this.japaEngine.vibrationEnabled;
+        this.japaEngine.saveState();
+        japaVibToggle.innerHTML = this.japaEngine.vibrationEnabled ? '📳 Haptics: ON' : '📴 Haptics: OFF';
+      });
+    }
+    const japaMeruToggle = document.getElementById('gk-japa-meru-toggle');
+    if (japaMeruToggle) {
+      japaMeruToggle.addEventListener('click', () => {
+        this.japaEngine.meruReversalMode = !this.japaEngine.meruReversalMode;
+        this.japaEngine.saveState();
+        japaMeruToggle.innerHTML = this.japaEngine.meruReversalMode ? '🔄 Meru Reversal: ON' : '🔁 Continuous Loop';
+      });
+    }
+    const japaReset = document.getElementById('gk-japa-reset');
+    if (japaReset) {
+      japaReset.addEventListener('click', () => {
+        if (confirm("Reset current 108 bead counter to 0?")) {
+          this.japaEngine.resetCurrentMala();
+          this.renderViewOnly();
+        }
+      });
+    }
+    const japaExport = document.getElementById('gk-japa-export');
+    if (japaExport) {
+      japaExport.addEventListener('click', () => {
+        const json = this.japaEngine.exportDataJSON();
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `GuruKripa_Japa_Backup_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+      });
+    }
+
+    // Quiz Buttons
+    document.querySelectorAll('.gk-quiz-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const storyId = btn.getAttribute('data-story');
+        const optIdx = parseInt(btn.getAttribute('data-idx'), 10);
+        const { STORIES_DATA } = await this.loadStories();
+        const story = STORIES_DATA.find(s => s.id === storyId);
+        const resultEl = document.getElementById(`gk-quiz-result-${storyId}`);
+        if (story && resultEl) {
+          resultEl.style.display = 'block';
+          if (optIdx === story.quiz.correctIndex) {
+            resultEl.style.background = 'rgba(46, 125, 50, 0.1)';
+            resultEl.style.color = '#2E7D32';
+            resultEl.innerHTML = `<strong>✓ Spot On!</strong> ${story.quiz.explanation}`;
+          } else {
+            resultEl.style.background = 'rgba(198, 40, 40, 0.1)';
+            resultEl.style.color = '#C62828';
+            resultEl.innerHTML = `<strong>Reflect Again:</strong> Consider the spiritual principle of Buddhi and Satya.`;
+          }
+        }
+      });
+    });
+  }
+
+  bindModalEvents() {
     // Card Maker Close
     const cardCloseBtn = document.getElementById('gk-card-maker-close');
     if (cardCloseBtn) {
@@ -1929,12 +2294,6 @@ class GuruKripaApp {
     const canvasWhatsapp = document.getElementById('gk-canvas-whatsapp');
     if (canvasWhatsapp) {
       canvasWhatsapp.addEventListener('click', () => this.shareCardToWhatsApp());
-    }
-
-    // Deity Postcard Generator Triggers
-    const openPosterBtn = document.getElementById('gk-open-deity-poster');
-    if (openPosterBtn) {
-      openPosterBtn.addEventListener('click', () => this.openDeityPoster());
     }
 
     const closePosterBtn = document.getElementById('gk-deity-poster-close');
@@ -1985,7 +2344,7 @@ class GuruKripaApp {
     if (modalClose) {
       modalClose.addEventListener('click', () => {
         this.cityModalOpen = false;
-        this.render();
+        this.renderModalOnly();
       });
     }
     const searchInput = document.getElementById('gk-city-search');
@@ -2012,135 +2371,6 @@ class GuruKripaApp {
         }
       });
     });
-
-    // Sloka Font Controls & Sabdartha Toggle
-    const fontInc = document.getElementById('gk-font-inc');
-    if (fontInc) {
-      fontInc.addEventListener('click', () => {
-        this.slokaFontSize = Math.min(this.slokaFontSize + 0.15, 2.2);
-        this.render();
-      });
-    }
-    const fontDec = document.getElementById('gk-font-dec');
-    if (fontDec) {
-      fontDec.addEventListener('click', () => {
-        this.slokaFontSize = Math.max(this.slokaFontSize - 0.15, 0.9);
-        this.render();
-      });
-    }
-    const sabdarthaToggle = document.getElementById('gk-toggle-sabdartha');
-    if (sabdarthaToggle) {
-      sabdarthaToggle.addEventListener('click', () => {
-        this.showSabdartha = !this.showSabdartha;
-        this.render();
-      });
-    }
-
-    // Japa Counter Trigger
-    const japaCircle = document.getElementById('gk-japa-trigger');
-    if (japaCircle) {
-      japaCircle.addEventListener('click', () => this.handleJapaClick());
-    }
-    const japaSoundToggle = document.getElementById('gk-japa-sound-toggle');
-    if (japaSoundToggle) {
-      japaSoundToggle.addEventListener('click', () => {
-        this.japaEngine.soundEnabled = !this.japaEngine.soundEnabled;
-        this.japaEngine.saveState();
-        this.render();
-      });
-    }
-    const japaVibToggle = document.getElementById('gk-japa-vib-toggle');
-    if (japaVibToggle) {
-      japaVibToggle.addEventListener('click', () => {
-        this.japaEngine.vibrationEnabled = !this.japaEngine.vibrationEnabled;
-        this.japaEngine.saveState();
-        this.render();
-      });
-    }
-    const japaMeruToggle = document.getElementById('gk-japa-meru-toggle');
-    if (japaMeruToggle) {
-      japaMeruToggle.addEventListener('click', () => {
-        this.japaEngine.meruReversalMode = !this.japaEngine.meruReversalMode;
-        this.japaEngine.saveState();
-        this.render();
-      });
-    }
-    const japaReset = document.getElementById('gk-japa-reset');
-    if (japaReset) {
-      japaReset.addEventListener('click', () => {
-        if (confirm("Reset current 108 bead counter to 0?")) {
-          this.japaEngine.resetCurrentMala();
-          this.render();
-        }
-      });
-    }
-    const japaExport = document.getElementById('gk-japa-export');
-    if (japaExport) {
-      japaExport.addEventListener('click', () => {
-        const json = this.japaEngine.exportDataJSON();
-        const blob = new Blob([json], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `GuruKripa_Japa_Backup_${new Date().toISOString().slice(0,10)}.json`;
-        a.click();
-      });
-    }
-
-    // Quiz Buttons
-    document.querySelectorAll('.gk-quiz-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const storyId = btn.getAttribute('data-story');
-        const optIdx = parseInt(btn.getAttribute('data-idx'), 10);
-        const story = STORIES_DATA.find(s => s.id === storyId);
-        const resultEl = document.getElementById(`gk-quiz-result-${storyId}`);
-        if (story && resultEl) {
-          resultEl.style.display = 'block';
-          if (optIdx === story.quiz.correctIndex) {
-            resultEl.style.background = 'rgba(46, 125, 50, 0.1)';
-            resultEl.style.color = '#2E7D32';
-            resultEl.innerHTML = `<strong>✓ Spot On!</strong> ${story.quiz.explanation}`;
-          } else {
-            resultEl.style.background = 'rgba(198, 40, 40, 0.1)';
-            resultEl.style.color = '#C62828';
-            resultEl.innerHTML = `<strong>Reflect Again:</strong> Consider the spiritual principle of Buddhi and Satya.`;
-          }
-        }
-      });
-    });
-
-    // Consent Accept
-    const consentAccept = document.getElementById('gk-consent-accept');
-    if (consentAccept) {
-      consentAccept.addEventListener('click', () => {
-        localStorage.setItem('gk_consent', 'accepted');
-        const banner = document.getElementById('gk-consent-banner');
-        if (banner) banner.remove();
-      });
-    }
-
-    // Sticky Footer Ad Dismissal
-    const stickyClose = document.getElementById('gk-close-ad-footer-anchor');
-    if (stickyClose) {
-      stickyClose.addEventListener('click', () => {
-        if (typeof sessionStorage !== 'undefined') {
-          sessionStorage.setItem('gk_hide_sticky_ad', 'true');
-        }
-        const stickyAd = document.getElementById('ad-footer-anchor');
-        if (stickyAd) stickyAd.remove();
-      });
-    }
-
-    // Google AdSense Push Safe Initialization
-    try {
-      if (typeof window !== 'undefined' && window.adsbygoogle) {
-        document.querySelectorAll('ins.adsbygoogle').forEach(() => {
-          (window.adsbygoogle = window.adsbygoogle || []).push({});
-        });
-      }
-    } catch (e) {
-      // Graceful fallback for adblockers / offline preview
-    }
   }
 
   updateSEO() {
@@ -2195,6 +2425,8 @@ class GuruKripaApp {
     }
     metaKeywords.content = currentSeo.keywords;
 
+    const origin = this.getOrigin();
+
     // Update Canonical Link
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) {
@@ -2202,7 +2434,7 @@ class GuruKripaApp {
       canonical.rel = "canonical";
       document.head.appendChild(canonical);
     }
-    canonical.href = `https://gurukripa.pages.dev/#${this.currentView}`;
+    canonical.href = `${origin}/#${this.currentView}`;
 
     // Update OpenGraph Tags
     const setMeta = (prop, val) => {
@@ -2216,8 +2448,8 @@ class GuruKripaApp {
     };
     setMeta('og:title', currentSeo.title);
     setMeta('og:description', currentSeo.desc);
-    setMeta('og:url', `https://gurukripa.pages.dev/#${this.currentView}`);
-    setMeta('og:image', 'https://gurukripa.pages.dev/assets/og-banner.svg');
+    setMeta('og:url', `${origin}/#${this.currentView}`);
+    setMeta('og:image', `${origin}/assets/og-banner.svg`);
 
     // Update Twitter Tags
     const setTwitter = (name, val) => {
@@ -2231,7 +2463,7 @@ class GuruKripaApp {
     };
     setTwitter('twitter:title', currentSeo.title);
     setTwitter('twitter:description', currentSeo.desc);
-    setTwitter('twitter:image', 'https://gurukripa.pages.dev/assets/og-banner.svg');
+    setTwitter('twitter:image', `${origin}/assets/og-banner.svg`);
 
     // Update Document HTML Lang
     document.documentElement.lang = this.selectedLang || 'en';
@@ -2242,9 +2474,9 @@ class GuruKripaApp {
       const graph = [
         {
           "@type": "WebApplication",
-          "@id": "https://gurukripa.pages.dev/#webapp",
+          "@id": `${origin}/#webapp`,
           "name": "GuruKripa",
-          "url": "https://gurukripa.pages.dev",
+          "url": origin,
           "description": currentSeo.desc,
           "applicationCategory": "LifestyleApplication",
           "operatingSystem": "All",
@@ -2253,10 +2485,10 @@ class GuruKripaApp {
         },
         {
           "@type": "BreadcrumbList",
-          "@id": `https://gurukripa.pages.dev/#breadcrumb-${this.currentView}`,
+          "@id": `${origin}/#breadcrumb-${this.currentView}`,
           "itemListElement": [
-            { "@type": "ListItem", "position": 1, "name": "GuruKripa", "item": "https://gurukripa.pages.dev/" },
-            { "@type": "ListItem", "position": 2, "name": currentSeo.title, "item": `https://gurukripa.pages.dev/#${this.currentView}` }
+            { "@type": "ListItem", "position": 1, "name": "GuruKripa", "item": `${origin}/` },
+            { "@type": "ListItem", "position": 2, "name": currentSeo.title, "item": `${origin}/#${this.currentView}` }
           ]
         }
       ];
@@ -2264,7 +2496,7 @@ class GuruKripaApp {
       if (this.currentView === 'panchang') {
         graph.push({
           "@type": "FAQPage",
-          "@id": "https://gurukripa.pages.dev/#faq-panchang",
+          "@id": `${origin}/#faq-panchang`,
           "mainEntity": [
             {
               "@type": "Question",

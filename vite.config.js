@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
+  base: '/',
   server: {
     port: 3000,
     open: false,
@@ -14,8 +15,11 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    target: 'es2020',
     sourcemap: false,
     minify: 'esbuild',
+    cssCodeSplit: true,
+    assetsInlineLimit: 4096,
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html')
